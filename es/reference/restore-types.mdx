@@ -1,43 +1,43 @@
 ---
-title: "Tipos de Restauración de NovaRestore: Completa, Parcial y Granular"
+title: "Tipos de Restauración de NovaRestore: Completo, Parcial, y Granular"
 sidebarTitle: "Tipos de restauración"
-description: "Referencia de todos los tipos de restauración de NovaRestore — desde Completa (todos los espacios) hasta categorías granulares como Espada o Casco — con exactamente qué restaura cada tipo."
+description: "Referencia para todos los tipos de restauración de NovaRestore — desde Full (todos los espacios) hasta categorías granulares como Sword o Helmet — con exactamente qué restaura cada tipo."
 ---
 
-NovaRestore le da al staff control preciso sobre qué se restaura tras la muerte de un jugador. En lugar de forzar una decisión de todo o nada, el plugin ofrece dos niveles de tipos de restauración: **tipos estándar** que operan sobre secciones bien definidas del inventario de un jugador, y **tipos granulares (personalizados)** que apuntan a categorías individuales de ítems, hasta una sola herramienta o pieza de armadura. Entender estos tipos ayuda al staff a tomar la decisión de restauración correcta para cada situación.
+NovaRestore le da al staff control preciso sobre qué se restaura después de una muerte de jugador. En lugar de forzar una decisión de todo o nada, el plugin ofrece dos niveles de tipos de restauración: **tipos estándar** que operan en secciones bien definidas del inventario de un jugador, y **tipos granulares (personalizados)** que apuntan a categorías de ítem individuales hasta una sola herramienta o pieza de armadura. Entender estos tipos ayuda al staff a tomar la decisión de restauración correcta para cada situación.
 
 <Note>
-Una restauración solo incluye datos que efectivamente se capturaron en la instantánea. Si un jugador tenía el ender chest vacío cuando murió, seleccionar `ENDER_CHEST` no restaurará nada. El plugin usa el estado exacto registrado en el momento de la muerte.
+Una restauración solo incluye datos que fueron realmente capturados en la instantánea. Si un jugador tenía un ender chest vacío cuando murió, seleccionar `ENDER_CHEST` no restaurará nada. El plugin usa el estado exacto registrado en la muerte.
 </Note>
 
 ## Tipos de restauración estándar
 
-Los tipos estándar son las opciones principales de restauración mostradas en el flujo de aprobación de Discord. Cada uno se mapea directamente a una o más secciones del inventario.
+Los tipos estándar son las opciones de restauración primarias mostradas en el flujo de trabajo de aprobación de Discord. Cada uno mapea directamente a una o más secciones del inventario.
 
 | Tipo | Qué se restaura | Espacios afectados |
 |---|---|---|
 | `FULL` | Todo — inventario, armadura, mano secundaria, XP, y ender chest | 36 + 4 + 1 + XP + 27 |
 | `INVENTORY` | Solo el inventario principal | 36 espacios de hotbar y almacenamiento |
-| `ARMOR` | Solo la armadura equipada | 4 espacios de armadura (casco, peto, pantalones, botas) |
+| `ARMOR` | Solo la armadura equipada | 4 espacios de armadura (helmet, chestplate, leggings, boots) |
 | `OFFHAND` | Solo el espacio de mano secundaria | 1 espacio de mano secundaria |
-| `XP` | Solo los puntos de experiencia | Contador total de XP |
-| `ENDER_CHEST` | Solo el contenido del ender chest | 27 espacios del ender chest |
+| `XP` | Solo puntos de experiencia | Contador de XP total |
+| `ENDER_CHEST` | Solo el contenido del ender chest | 27 espacios de ender chest |
 
-`FULL` es la opción más completa y restaura todo en una sola acción. Los tipos dirigidos (`INVENTORY`, `ARMOR`, `OFFHAND`, `XP`, `ENDER_CHEST`) son útiles cuando solo parte del equipo de un jugador necesita devolverse — por ejemplo, restaurar solo su armadura después de una muerte por PvP donde conservó su inventario.
+`FULL` es la opción más completa y restaura todo en una acción. Los tipos dirigidos (`INVENTORY`, `ARMOR`, `OFFHAND`, `XP`, `ENDER_CHEST`) son útiles cuando solo parte del equipo de un jugador necesita devolverse — por ejemplo, restaurar solo su armadura después de una muerte de PvP donde mantuvo su inventario.
 
 ## Tipos de restauración granulares (personalizados)
 
-Los tipos granulares se acceden a través del menú desplegable **"Others"** en el flujo de aprobación de Discord. Permiten al staff restaurar una o más categorías específicas de ítems en una sola acción — por ejemplo, devolver solo la espada y el pico del jugador sin tocar nada más.
+Los tipos granulares se acceden a través del menú desplegable **"Others"** en el flujo de trabajo de aprobación de Discord. Permiten al staff restaurar una o más categorías de ítem específicas en una sola acción — por ejemplo, devolviendo solo la espada y el pico del jugador sin tocar nada más.
 
 ### Categorías de herramientas
 
-Las categorías de herramientas escanean los **espacios del inventario principal** del jugador (los 36) y restauran cada ítem cuyo nombre de material termine con el sufijo correspondiente.
+Las categorías de herramientas escanean los **espacios del inventario principal** del jugador (los 36) y restauran cada ítem cuyo nombre de material termina con el sufijo coincidente.
 
 | Tipo | Coincide con ítems que terminan en |
 |---|---|
 | `SWORD` | `_SWORD` (por ejemplo, `DIAMOND_SWORD`, `NETHERITE_SWORD`) |
 | `PICKAXE` | `_PICKAXE` (por ejemplo, `IRON_PICKAXE`, `NETHERITE_PICKAXE`) |
-| `AXE` | `_AXE` (por ejemplo, `STONE_AXE`, `GOLDEN_AXE`) — los picos quedan excluidos |
+| `AXE` | `_AXE` (por ejemplo, `STONE_AXE`, `GOLDEN_AXE`) — los pickaxes se excluyen |
 | `SHOVEL` | `_SHOVEL` (por ejemplo, `WOODEN_SHOVEL`, `DIAMOND_SHOVEL`) |
 
 Cuando se aplica una categoría de herramienta, los ítems coincidentes de la instantánea se colocan de vuelta en sus espacios de inventario originales si esos espacios están vacíos, o en el primer espacio vacío disponible si la posición original está ocupada.
@@ -53,7 +53,7 @@ Las categorías de armadura se restauran desde **dos ubicaciones simultáneament
 | `LEGGINGS` | `_LEGGINGS` | Espacio de piernas |
 | `BOOTS` | `_BOOTS` | Espacio de pies |
 
-Por ejemplo, seleccionar `HELMET` restaurará un casco de diamante encontrado en cualquier lugar del inventario principal de la instantánea, *y* también restaurará el casco del espacio de cabeza dedicado si se llevaba uno puesto al momento de la muerte. Si el espacio de armadura actual del jugador ya está ocupado, la pieza restaurada se coloca en el inventario principal en su lugar.
+Por ejemplo, seleccionar `HELMET` restaurará un diamond helmet encontrado en cualquier lugar en el inventario principal de la instantánea, *y* también restaurará el helmet del espacio de cabeza dedicado si uno se estaba usando en el momento de la muerte. Si el espacio de armadura actual del jugador ya está ocupado, la pieza restaurada se coloca en el inventario principal en su lugar.
 
 ### Mano secundaria granular
 
@@ -61,10 +61,10 @@ Por ejemplo, seleccionar `HELMET` restaurará un casco de diamante encontrado en
 |---|---|
 | `OFFHAND` | El único espacio de mano secundaria de la instantánea |
 
-Este es el equivalente granular del tipo estándar `OFFHAND` y está disponible junto con otras selecciones personalizadas en el menú desplegable multi-selección "Others".
+Este es el equivalente granular del tipo estándar `OFFHAND` y está disponible junto a otras selecciones personalizadas en el menú desplegable de multi-selección "Others".
 
-## Combinar tipos granulares
+## Combinando tipos granulares
 
-El menú desplegable "Others" en el flujo de Discord admite **multi-selección** — el staff puede elegir cualquier combinación de tipos granulares (por ejemplo, `SWORD` + `PICKAXE` + `HELMET`) y aplicarlos todos en una sola acción de restauración. El plugin valida que exista suficiente espacio de inventario antes de aplicar, y procesa cada tipo seleccionado en secuencia.
+El menú desplegable "Others" en el flujo de trabajo de Discord soporta **multi-selección** — el staff puede elegir cualquier combinación de tipos granulares (por ejemplo, `SWORD` + `PICKAXE` + `HELMET`) y aplicarlos todos en una sola acción de restauración. El plugin valida que suficiente espacio de inventario exista antes de aplicar, y procesa cada tipo seleccionado en secuencia.
 
-Si ninguno de los tipos granulares seleccionados coincide con algún ítem en la instantánea, la restauración se rechaza con un mensaje apropiado para que el staff pueda elegir otra opción.
+Si ninguno de los tipos granulares seleccionados coincide con algún ítem en la instantánea, la restauración se rechaza con un mensaje apropiado para que el staff pueda elegir una opción diferente.

@@ -1,82 +1,82 @@
 ---
-title: "Estados y Transiciones del Ciclo de Vida de Instantáneas de NovaRestore"
+title: "Estados de Instantáneas de NovaRestore y Transiciones de Ciclo de Vida"
 sidebarTitle: "Estados de instantáneas"
 description: "Entiende los cinco estados de instantáneas de NovaRestore — Open, Pending, Queued, Restored, y Denied — y qué transiciones son posibles entre ellos."
 ---
 
-Cada instantánea de muerte en NovaRestore tiene un estado que describe exactamente en qué punto del ciclo de vida de restauración se encuentra. Los estados controlan qué acciones están disponibles para una instantánea, si cuenta contra el límite de solicitudes pendientes de un jugador, y si se puede solicitar de nuevo. Entender el modelo de estados ayuda al staff a gestionar las restauraciones de inventario eficientemente y ayuda a los jugadores a saber qué esperar.
+Cada instantánea de muerte en NovaRestore tiene un estado que describe exactamente dónde está en el ciclo de vida de restauración. Los estados controlan qué acciones están disponibles para una instantánea, si cuenta contra el límite de solicitudes pendientes de un jugador, y si puede solicitarse de nuevo. Entender el modelo de estado ayuda al staff a gestionar restauraciones de inventario eficientemente y ayuda a los jugadores a saber qué esperar.
 
 <Tip>
-La GUI del explorador de instantáneas tiene un **botón de filtro** en la fila inferior. Úsalo para cambiar rápidamente entre vistas — por ejemplo, filtra por `pending` para ver solo instantáneas con solicitudes activas en Discord, o `queued` para revisar quién tiene restauraciones aprobadas esperando entrega.
+La GUI del navegador de instantáneas tiene un **botón de filtro** en la fila inferior. Úsalo para cambiar rápidamente entre vistas — por ejemplo, filtra por `pending` para ver solo instantáneas con solicitudes de Discord activas, o `queued` para verificar quién tiene restauraciones aprobadas esperando entrega.
 </Tip>
 
 ## Los cinco estados de instantáneas
 
 | Estado | Color | Significado |
 |---|---|---|
-| **Open** | 🟢 Verde | Instantánea guardada, sin solicitud enviada todavía. Totalmente disponible. |
-| **Pending** | 🟡 Amarillo | Se envió una solicitud de restauración a Discord y está esperando revisión del staff. |
+| **Open** | 🟢 Verde | Instantánea guardada, ninguna solicitud enviada todavía. Completamente disponible. |
+| **Pending** | 🟡 Amarillo | Una solicitud de restauración se ha enviado a Discord y está esperando revisión del staff. |
 | **Queued** | 🔵 Cian | Solicitud aprobada pero el jugador estaba desconectado. Los ítems se entregarán en el próximo inicio de sesión. |
-| **Restored** | 🟩 Verde oscuro | Ítems restaurados exitosamente. La entrada está bloqueada — no se puede volver a solicitar. |
-| **Denied** | 🔴 Rojo | La solicitud fue denegada por el staff. Se puede reabrir con el permiso adecuado. |
+| **Restored** | 🟩 Verde oscuro | Ítems restaurados exitosamente. La entrada está bloqueada — no puede solicitarse de nuevo. |
+| **Denied** | 🔴 Rojo | La solicitud fue denegada por el staff. Puede reabrirse con el permiso correcto. |
 
 ### Open
 
-`OPEN` es el estado predeterminado para cada instantánea recién capturada. Significa que la muerte fue registrada y los datos están intactos, pero no se ha iniciado ninguna acción de restauración. El staff puede abrir el menú de inspección de la instantánea, revisar los ítems, y enviar una solicitud a Discord. Una instantánea `OPEN` **no** cuenta contra el límite de solicitudes pendientes del jugador.
+`OPEN` es el estado predeterminado para cada instantánea recién capturada. Significa que la muerte fue registrada y los datos están intactos, pero ninguna acción de restauración se ha iniciado. El staff puede abrir el menú de inspección para la instantánea, revisar los ítems, y enviar una solicitud a Discord. Una instantánea `OPEN` **no** cuenta contra el límite de solicitudes pendientes del jugador.
 
 ### Pending
 
-`PENDING` significa que se envió una solicitud de restauración y está activa en el canal de Discord, esperando que un administrador la apruebe o deniegue. Una instantánea permanece en este estado hasta que alguien actúa sobre ella en Discord, se cancela mediante `/invrollback cancel`, o expira (controlado por `requests.timeout-minutes` en la configuración). Las instantáneas pendientes **cuentan contra** el límite `requests.max-pending-per-player` del jugador.
+`PENDING` significa que una solicitud de restauración se ha enviado y está activa en el canal de Discord, esperando que un admin la apruebe o deniegue. Una instantánea permanece en este estado hasta que alguien actúa sobre ella en Discord, se cancela vía `/invrollback cancel`, o expira (controlado por `requests.timeout-minutes` en la configuración). Las instantáneas pendientes **cuentan contra** el límite `requests.max-pending-per-player` del jugador.
 
 ### Queued
 
-`QUEUED` es un estado transitorio que ocurre cuando un administrador de Discord aprueba una restauración pero el jugador objetivo está desconectado en ese momento. El plugin guarda el tipo de restauración aprobado junto con la instantánea y espera. En cuanto el jugador inicia sesión, los ítems se entregan automáticamente y la instantánea avanza a `RESTORED`.
+`QUEUED` es un estado transicional que ocurre cuando un admin de Discord aprueba una restauración pero el jugador objetivo está desconectado en ese momento. El plugin almacena el tipo de restauración aprobado junto a la instantánea y espera. Tan pronto como el jugador inicia sesión, los ítems se entregan automáticamente y la instantánea avanza a `RESTORED`.
 
 ### Restored
 
-`RESTORED` es el estado terminal de éxito. Significa que los ítems se aplicaron al inventario del jugador (o se entregaron desde la cola). Una vez que una instantánea alcanza este estado queda **bloqueada** — el menú de inspección la muestra como ya restaurada y el botón de solicitud está deshabilitado. Esto evita que la misma muerte se restaure dos veces.
+`RESTORED` es el estado terminal de éxito. Significa que los ítems se aplicaron al inventario del jugador (o se entregaron desde la cola). Una vez que una instantánea alcanza este estado está **bloqueada** — el menú de inspección la muestra como ya restaurada y el botón de solicitud está deshabilitado. Esto previene que la misma muerte se restaure dos veces.
 
-Para permitir una segunda restauración sobre la misma muerte (por ejemplo, si solo se devolvió parte de los ítems la primera vez), un miembro del staff con el permiso `rollback.manage.unlock` debe ejecutar:
+Para permitir una segunda restauración en la misma muerte (por ejemplo, si solo parte de los ítems se devolvieron la primera vez), un miembro del staff con el permiso `rollback.manage.unlock` debe ejecutar:
 
-```bash title="Desbloquear una instantánea restaurada"
+```bash title="Unlock a restored snapshot"
 /invrollback unlock <deathId>
 ```
 
-Esto devuelve la instantánea al estado `OPEN` y registra la acción de desbloqueo en el registro de auditoría.
+Esto mueve la instantánea de vuelta a `OPEN` y registra la acción de desbloqueo en el rastro de auditoría.
 
 ### Denied
 
-`DENIED` significa que un administrador de Discord revisó la solicitud y la rechazó. El jugador recibe una notificación dentro del juego si `notifications.notify-target-player` está activado. Una instantánea denegada puede ser **reabierta** por un miembro del staff con el permiso `rollback.manage.reopen` usando:
+`DENIED` significa que un admin de Discord revisó la solicitud y la rechazó. El jugador recibe una notificación dentro del juego si `notifications.notify-target-player` está habilitado. Una instantánea denegada puede **reabrirse** por un miembro del staff con el permiso `rollback.manage.reopen` usando:
 
-```bash title="Reabrir una instantánea denegada"
+```bash title="Reopen a denied snapshot"
 /invrollback reopen <deathId>
 ```
 
-Reabrir una instantánea la devuelve al estado `OPEN` para que se pueda enviar una nueva solicitud.
+Reabrir una instantánea la devuelve a `OPEN` para que una nueva solicitud pueda enviarse.
 
 ## Diagrama de transición de estados
 
 El siguiente diagrama muestra cada transición de estado válida:
 
 ```
-[Ocurre la muerte]
+[Death occurs]
       │
       ▼
-    OPEN ◄──────────────────────────── (desbloqueado por el staff)
+    OPEN ◄──────────────────────────── (unlocked by staff)
       │                                        ▲
-      │ (solicitud enviada a Discord)          │
+      │ (request submitted to Discord)         │
       ▼                                        │
-   PENDING ──── (expirada / cancelada) ──► OPEN
+   PENDING ──── (timed out / cancelled) ──► OPEN
       │
-      ├─── (denegada por el staff) ──────────────► DENIED
+      ├─── (denied by staff) ──────────────► DENIED
       │                                        │
-      │                                        └─ (reabierta por el staff) ──► OPEN
+      │                                        └─ (reopened by staff) ──► OPEN
       │
-      ├─── (aprobada, jugador en línea) ─────► RESTORED ◄─ (entrega en cola aplicada)
+      ├─── (approved, player online) ─────► RESTORED ◄─ (queued delivery applied)
       │
-      └─── (aprobada, jugador desconectado) ───► QUEUED
+      └─── (approved, player offline) ───► QUEUED
                                               │
-                                              └─ (jugador inicia sesión) ──────► RESTORED
+                                              └─ (player logs in) ──────► RESTORED
 ```
 
-La única forma de salir de `RESTORED` es un desbloqueo manual del staff. La única forma de salir de `DENIED` es una reapertura del staff. Cualquier otra transición ocurre automáticamente como parte del flujo normal.
+La única forma de salir de `RESTORED` es un desbloqueo manual de staff. La única forma de salir de `DENIED` es una reapertura de staff. Cualquier otra transición sucede automáticamente como parte del flujo de trabajo normal.

@@ -1,92 +1,92 @@
 ---
-title: "NovaRestore: Aprobar Solicitudes de Restauración en Discord"
-sidebarTitle: "Flujo de trabajo en Discord"
-description: "Actúa sobre las solicitudes de restauración de NovaRestore en Discord: lee el embed de la solicitud, elige un tipo de restauración o deniega, y entiende cómo funciona la entrega en cola sin conexión."
+title: "NovaRestore: Aprobando Solicitudes de Restauración en Discord"
+sidebarTitle: "Flujo de trabajo de Discord"
+description: "Actúa sobre solicitudes de restauración de NovaRestore en Discord: lee el embed de solicitud, elige un tipo de restauración o deniega, y entiende cómo funciona la entrega en cola sin conexión."
 ---
 
-Cuando un miembro del staff envía una solicitud de restauración desde el menú de inspección dentro del juego, NovaRestore publica inmediatamente un embed enriquecido en tu canal de Discord configurado. A partir de ese momento, el staff autorizado de Discord elige un tipo de restauración (o deniega la solicitud) usando un menú desplegable interactivo. El plugin entonces aplica los ítems automáticamente — de forma instantánea si el jugador está en línea, o en su próximo inicio de sesión si está desconectado.
+Cuando un miembro del staff envía una solicitud de restauración desde el menú de inspección dentro del juego, NovaRestore publica inmediatamente un embed enriquecido a tu canal de Discord configurado. Desde ese punto, el staff autorizado de Discord selecciona un tipo de restauración (o deniega la solicitud) usando un menú desplegable interactivo. El plugin entonces aplica los ítems automáticamente — ya sea instantáneamente si el jugador está en línea, o en su próximo inicio de sesión si está desconectado.
 
 <Note>
-  Aprobar y denegar solicitudes en Discord requiere que el usuario tenga uno de los IDs de rol listados bajo `discord.admin-role-ids` en `config.yml`, **si** `discord.require-admin-role` está definido como `true`. Si no hay ningún filtro de rol configurado, cualquiera con acceso al canal puede interactuar con el menú desplegable.
+  Aprobar y denegar solicitudes en Discord requiere que el usuario tenga uno de los IDs de rol listados bajo `discord.admin-role-ids` en `config.yml`, **si** `discord.require-admin-role` está definido en `true`. Si no hay filtro de rol configurado, cualquiera con acceso al canal puede interactuar con el menú desplegable.
 </Note>
 
 ---
 
-## El embed de la solicitud
+## El embed de solicitud
 
 Cada solicitud aparece en Discord como un embed con la siguiente información:
 
 | Campo | Descripción |
 |---|---|
-| **Título** | Nombre del jugador y estado actual de la solicitud (por ejemplo, "Restore request — Steve") |
-| **Miniatura** | Cabeza del jugador obtenida mediante la `discord.thumbnail-url-template` configurada |
-| **Solicitado por** | El miembro del staff que envió la solicitud dentro del juego |
-| **Jugador** | El jugador cuyo inventario se está restaurando |
-| **Revisado por** | Vacío hasta que un miembro del staff actúa; se actualiza al aprobar o denegar |
-| **Servidor** | El servidor donde ocurrió la muerte (`server.name` de la configuración) |
-| **Ubicación** | Mundo y coordenadas de bloque de la muerte |
-| **Motivo de muerte** | Descripción legible de cómo murió el jugador |
-| **Fecha de solicitud** | Cuándo se envió la solicitud |
-| **Fecha de muerte** | Cuándo se capturó la instantánea de muerte original |
-| **Motivo de restauración** | El motivo que el miembro del staff que envió la solicitud indicó dentro del juego (si se proporcionó) |
-| **Vista previa del inventario** | Una imagen PNG generada automáticamente que muestra el inventario completo, la armadura y la mano secundaria en el momento de la muerte |
+| **Title** | Nombre del jugador y estado de solicitud actual (por ejemplo, "Restore request — Steve") |
+| **Thumbnail** | Cabeza del jugador obtenida vía la `discord.thumbnail-url-template` configurada |
+| **Requested By** | El miembro del staff que envió la solicitud dentro del juego |
+| **Player** | El jugador cuyo inventario se está restaurando |
+| **Reviewed By** | Vacío hasta que un miembro del staff actúa; se actualiza al aprobar o denegar |
+| **Server** | El servidor donde ocurrió la muerte (`server.name` desde la configuración) |
+| **Location** | Mundo y coordenadas de bloque de la muerte |
+| **Death Reason** | Descripción legible por humanos de cómo murió el jugador |
+| **Request Date** | Cuándo se envió la solicitud |
+| **Death Date** | Cuándo se capturó la instantánea de muerte original |
+| **Rollback Reason** | El motivo que el miembro del staff que envía ingresó dentro del juego (si se proporcionó) |
+| **Inventory Preview** | Una imagen PNG generada automáticamente mostrando el inventario completo, armadura, y mano secundaria en el momento de la muerte |
 
-El pie del embed repite el nombre del servidor, las coordenadas de la muerte, y el ID de muerte para referencia rápida.
+El pie del embed repite el nombre del servidor, coordenadas de muerte, e ID de muerte para referencia rápida.
 
 ---
 
-## Elegir un tipo de restauración
+## Seleccionando un tipo de restauración
 
-El embed incluye un **menú desplegable** justo debajo. Haz clic o toca el menú desplegable para elegir una de las siguientes opciones:
+El embed incluye un **menú desplegable** directamente debajo de él. Haz clic o toca el menú desplegable para elegir una de las siguientes opciones:
 
 <AccordionGroup>
-  <Accordion title="Restauración completa">
-    Restaura todo lo capturado en la instantánea: contenido del inventario principal, espacios de armadura, espacio de mano secundaria, niveles de XP, y ender chest. Úsalo cuando el jugador perdió todo y quieres devolvérselo todo.
+  <Accordion title="Full Restore">
+    Restaura todo capturado en la instantánea: contenido del inventario principal, espacios de armadura, espacio de mano secundaria, niveles de XP, y ender chest. Usa esto cuando el jugador perdió todo y quieres devolvérselo todo.
   </Accordion>
-  <Accordion title="Solo inventario">
-    Restaura únicamente los 36 espacios del inventario principal (hotbar + almacenamiento). La armadura, la mano secundaria, el XP, y el ender chest no se tocan.
+  <Accordion title="Inventory Only">
+    Restaura solo los 36 espacios del inventario principal (hotbar + almacenamiento). Armadura, mano secundaria, XP, y ender chest no se tocan.
   </Accordion>
-  <Accordion title="Solo armadura">
-    Restaura únicamente los cuatro espacios de armadura (casco, peto, pantalones, botas). El contenido del inventario y otras secciones no cambian.
+  <Accordion title="Armor Only">
+    Restaura solo los cuatro espacios de armadura (helmet, chestplate, leggings, boots). El contenido del inventario y otras secciones no cambian.
   </Accordion>
-  <Accordion title="Mano secundaria">
-    Restaura únicamente el espacio de mano secundaria. Útil para devolver un tótem o un escudo sin afectar nada más.
+  <Accordion title="Offhand">
+    Restaura solo el espacio de mano secundaria. Útil para devolver un totem o shield sin afectar cualquier otra cosa.
   </Accordion>
-  <Accordion title="Solo XP">
-    Restaura únicamente el nivel de experiencia del jugador. No se mueve ningún ítem. Úsalo cuando un jugador murió por un bug que drenó su XP sin perder ítems.
+  <Accordion title="XP Only">
+    Restaura solo el nivel de experiencia del jugador. No se mueven ítems. Usa esto cuando un jugador murió por un bug que drenó XP sin perder ítems.
   </Accordion>
-  <Accordion title="Ender chest">
+  <Accordion title="Ender Chest">
     Restaura el contenido del ender chest capturado en el momento de la muerte. El inventario principal y otras secciones no se ven afectados.
   </Accordion>
-  <Accordion title="Otro (granular)">
-    Abre un segundo menú desplegable con opciones de categorías de ítems individuales. Solo se muestran las categorías que contienen al menos un ítem coincidente en la instantánea. Categorías disponibles:
+  <Accordion title="Other (Granular)">
+    Abre un segundo menú desplegable con opciones de categoría de ítem individuales. Solo las categorías que contienen al menos un ítem coincidente en la instantánea se muestran. Categorías disponibles:
 
-    | Categoría | Qué se restaura |
+    | Category | What Gets Restored |
     |---|---|
-    | Espada | Todos los ítems cuyo nombre de material termina en `_SWORD` |
-    | Pico | Todos los ítems cuyo nombre de material termina en `_PICKAXE` |
-    | Hacha | Todos los ítems cuyo nombre de material termina en `_AXE` (excluyendo picos) |
-    | Pala | Todos los ítems cuyo nombre de material termina en `_SHOVEL` |
-    | Casco | Casco del espacio de armadura y cualquier casco en el inventario |
-    | Peto | Peto del espacio de armadura y los ítems coincidentes del inventario |
-    | Pantalones | Pantalones del espacio de armadura y los ítems coincidentes del inventario |
-    | Botas | Botas del espacio de armadura y los ítems coincidentes del inventario |
-    | Mano secundaria | Solo el espacio de mano secundaria (igual que la opción de nivel superior Mano secundaria) |
+    | Sword | Todos los ítems cuyo nombre de material termina en `_SWORD` |
+    | Pickaxe | Todos los ítems cuyo nombre de material termina en `_PICKAXE` |
+    | Axe | Todos los ítems cuyo nombre de material termina en `_AXE` (excluyendo pickaxes) |
+    | Shovel | Todos los ítems cuyo nombre de material termina en `_SHOVEL` |
+    | Helmet | Helmet del espacio de armadura y cualquier helmet en el inventario |
+    | Chestplate | Chestplate del espacio de armadura e ítems coincidentes del inventario |
+    | Leggings | Leggings del espacio de armadura e ítems coincidentes del inventario |
+    | Boots | Boots del espacio de armadura e ítems coincidentes del inventario |
+    | Offhand | Solo el espacio de mano secundaria (igual que la opción de nivel superior Offhand) |
 
-    Puedes seleccionar varias categorías antes de confirmar.
+    Puedes seleccionar múltiples categorías antes de confirmar.
   </Accordion>
-  <Accordion title="Denegar">
-    Rechaza la solicitud. El embed se actualiza para mostrar un estado denegado. Si `notifications.notify-target-player` está en `true` en la configuración, el jugador recibe una notificación dentro del juego si está en línea.
+  <Accordion title="Deny">
+    Rechaza la solicitud. El embed se actualiza para mostrar un estado denegado. Si `notifications.notify-target-player` es `true` en la configuración, el jugador recibe una notificación dentro del juego si está en línea.
   </Accordion>
 </AccordionGroup>
 
 ---
 
-## Qué sucede después de aprobar
+## Qué sucede después de la aprobación
 
 <Steps>
   <Step title="El embed se actualiza">
-    El embed de Discord actualiza de inmediato su título, el color de la descripción, y el campo **Revisado por** para reflejar el tipo de restauración aprobado y el usuario de Discord que actuó.
+    El embed de Discord actualiza inmediatamente su título, color de descripción, y el campo **Reviewed By** para reflejar el tipo de restauración aprobado y el usuario de Discord que actuó.
   </Step>
   <Step title="Los ítems se entregan (jugador en línea)">
     Si el jugador está actualmente en línea, NovaRestore aplica el tipo de restauración seleccionado a su inventario en vivo de inmediato. El jugador recibe una notificación dentro del juego de que la restauración se aplicó.
@@ -94,25 +94,25 @@ El embed incluye un **menú desplegable** justo debajo. Haz clic o toca el menú
   <Step title="Los ítems se ponen en cola (jugador desconectado)">
     Si el jugador está desconectado, la instantánea transiciona al estado **QUEUED**. El embed se actualiza de nuevo para mostrar el estado en cola. Cuando el jugador inicia sesión, NovaRestore entrega automáticamente los ítems y transiciona la instantánea a **RESTORED**.
   </Step>
-  <Step title="Se crea una entrada en el registro de auditoría">
-    Cada acción — aprobación, denegación, entrega — se escribe en el registro de auditoría del plugin y, si está configurado, también se envía a `discord.audit-webhook-url` como un mensaje de webhook separado.
+  <Step title="Se crea una entrada del registro de auditoría">
+    Cada acción — aprobación, denegación, entrega — se escribe al registro de auditoría del plugin y, si está configurado, también se despacha a `discord.audit-webhook-url` como un mensaje de webhook separado.
   </Step>
 </Steps>
 
 ---
 
-## Qué sucede después de denegar
+## Qué sucede después de la denegación
 
-Cuando seleccionas **Denegar** en el menú desplegable:
+Cuando seleccionas **Deny** del menú desplegable:
 
 1. La instantánea transiciona de PENDING → DENIED.
-2. El embed de Discord se actualiza con un estado denegado en rojo y tu nombre de usuario en el campo **Revisado por**.
-3. El menú desplegable interactivo se elimina para que no se pueda volver a actuar sobre el embed.
-4. Si las notificaciones están activadas en la configuración, el jugador afectado recibe un mensaje dentro del juego la próxima vez que esté en línea.
+2. El embed de Discord se actualiza con un estado denegado rojo y tu nombre de usuario en el campo **Reviewed By**.
+3. El menú desplegable interactivo se elimina para que el embed no pueda ser actuado de nuevo.
+4. Si las notificaciones están habilitadas en la configuración, el jugador afectado recibe un mensaje dentro del juego la próxima vez que esté en línea.
 
 Una solicitud denegada no es permanente. Cualquier miembro del staff con `rollback.manage.reopen` puede devolver la instantánea al estado OPEN:
 
-```bash title="Reabrir una solicitud denegada"
+```bash title="Reopen a denied request"
 /invrollback reopen <deathId>
 ```
 
@@ -120,53 +120,53 @@ El embed en Discord se actualizará para reflejar el estado reabierto y el menú
 
 ---
 
-## Cancelar una solicitud desde el juego
+## Cancelando una solicitud desde dentro del juego
 
-Si una solicitud PENDING o QUEUED ya no es necesaria — por ejemplo, el jugador se reconectó con sus ítems intactos — un miembro del staff con `rollback.manage.cancel` puede cancelarla sin usar Discord:
+Si una solicitud PENDING o QUEUED ya no se necesita — por ejemplo, el jugador se reconectó con sus ítems intactos — un miembro del staff con `rollback.manage.cancel` puede cancelarla sin usar Discord:
 
-```bash title="Cancelar una solicitud pendiente o en cola"
+```bash title="Cancel a pending or queued request"
 /invrollback cancel <deathId> <reason>
 ```
 
-`<reason>` es obligatorio y admite varias palabras. Se guarda en el registro de auditoría y se agrega al embed de Discord como una nota.
+El `<reason>` es requerido y de múltiples palabras. Se almacena en el registro de auditoría y se agrega al embed de Discord como una nota.
 
 ---
 
-## Tiempos de espera de solicitudes
+## Tiempos de espera de solicitud
 
 Las solicitudes pendientes expiran automáticamente después del número de minutos configurado en `requests.timeout-minutes` (predeterminado: `1440` minutos / 24 horas). Cuando una solicitud expira:
 
-- La instantánea transiciona de PENDING → OPEN (quedando disponible para solicitarse de nuevo).
-- El embed de Discord se actualiza para mostrar un estado **Expirado** con un color ámbar.
-- Se escribe una entrada TIMEOUT en el registro de auditoría por el actor SYSTEM.
+- La instantánea transiciona de PENDING → OPEN (haciéndola elegible para solicitarse de nuevo).
+- El embed de Discord se actualiza para mostrar un estado **Expired** con un color ámbar.
+- Una entrada TIMEOUT se escribe al registro de auditoría por el actor SYSTEM.
 
-Para desactivar la expiración automática por completo, define `requests.timeout-minutes: 0` en `config.yml`. Ten en cuenta que si `requests.max-pending-per-player` también es positivo, el plugin usa internamente un tiempo de espera efectivo de 1440 minutos para evitar que las solicitudes bloqueen permanentemente el cupo de un jugador.
+Para desactivar la expiración automática por completo, define `requests.timeout-minutes: 0` en `config.yml`. Nota que si `requests.max-pending-per-player` también es positivo, el plugin usa internamente un tiempo de espera efectivo de 1 440 minutos para prevenir que las solicitudes bloqueen el espacio de un jugador permanentemente.
 
 ---
 
-## Referencia del ciclo de vida de estados
+## Referencia de estado del ciclo de vida
 
-El diagrama a continuación muestra cada estado por el que puede pasar una instantánea y qué acción dispara cada transición.
+El diagrama a continuación muestra cada estado por el que puede moverse una instantánea y qué acción dispara cada transición.
 
 ```
-                      solicitud enviada
+                      request submitted
 OPEN ─────────────────────────────────────────► PENDING
  ▲                                                 │
- │                                          acción en Discord
+ │                                          Discord action
  │                                       ┌─────────┼──────────┐
- │                                       │ denegar │ aprobar  │ aprobar
+ │                                       │ deny    │ approve  │ approve
  │                                       ▼         │ (online) │ (offline)
  │                                    DENIED       ▼          ▼
- │                                       │      RESTORED    QUEUED ── jugador inicia sesión ──► RESTORED
+ │                                       │      RESTORED    QUEUED ── player logs in ──► RESTORED
  │                                       │
- ├──────── /invrollback cancel ──────────┤ (desde PENDING o QUEUED)
+ ├──────── /invrollback cancel ──────────┤ (from PENDING or QUEUED)
  │
- └──────── /invrollback reopen ──────────┘ (desde DENIED)
+ └──────── /invrollback reopen ──────────┘ (from DENIED)
 ```
 
 | Estado | Color en Discord | Significado |
 |---|---|---|
-| OPEN | Verde | Sin solicitud activa; disponible para solicitarse |
+| OPEN | Verde | Sin solicitud activa; disponible para ser solicitada |
 | PENDING | Blurple (azul-morado) | Solicitud enviada a Discord; esperando acción del staff |
 | QUEUED | Azul | Aprobada; esperando a que el jugador se conecte |
 | RESTORED | Verde oscuro | Ítems entregados exitosamente |
