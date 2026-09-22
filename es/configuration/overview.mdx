@@ -1,0 +1,101 @@
+---
+title: "Configuración de NovaRestore: Guía de Referencia Completa"
+sidebarTitle: "Resumen"
+description: "Un recorrido guiado por cada sección de configuración de NovaRestore: base de datos, Discord, retención de almacenamiento, gestión de solicitudes y protecciones para jugadores."
+---
+
+NovaRestore guarda todas las opciones de configuración en un único archivo que se genera automáticamente la primera vez que el plugin se carga. Entender la estructura de ese archivo — y saber qué sección controla qué comportamiento — hace que la administración diaria sea mucho más fácil. Esta página te guía por dónde vive el archivo, cómo aplicar cambios en tiempo real y de qué es responsable cada sección de nivel superior.
+
+## Ubicación del archivo de configuración
+
+NovaRestore escribe su configuración en:
+
+```text plugins/NovaRestore/config.yml
+plugins/NovaRestore/config.yml
+```
+
+Si el archivo no existe cuando el servidor inicia, el plugin copia un valor predeterminado totalmente comentado desde dentro del jar. Puedes editar cualquier valor en ese archivo y recargarlo sin reiniciar el servidor.
+
+## Aplicar cambios sin reiniciar
+
+Ejecuta el siguiente comando desde la consola del servidor o como un jugador con el permiso `rollback.reload`:
+
+```bash in-game or console
+/invrollback reload
+```
+
+Este comando vuelve a leer `config.yml`, se reconecta a la base de datos si cambiaron los ajustes de conexión, y actualiza la configuración del bot de Discord. El alias `/invrestore reload` funciona de manera idéntica.
+
+<Note>
+  Si cambias el token del bot de Discord debes reiniciar el servidor en lugar
+  de recargar. El argumento de la JVM que contiene el token solo se lee durante el inicio.
+  Consulta la [página de Discord](/es/configuration/discord) para más detalles.
+</Note>
+
+## Token del bot de Discord
+
+El token del bot **no** se guarda en `config.yml`. Pásalo como argumento de la JVM al iniciar el servidor para que nunca se escriba en disco en texto plano:
+
+```bash server-start.sh
+java -Ddiscord.token=YOUR_BOT_TOKEN_HERE -jar paper.jar
+```
+
+La clave `discord.bot-token` en `config.yml` se deja intencionalmente como una etiqueta de marcador de posición. NovaRestore la ignora en tiempo de ejecución y solo lee la propiedad de la JVM.
+
+## Secciones de configuración
+
+Las cinco secciones a continuación cubren toda la superficie de funciones de `config.yml`. Cada una tiene su propia página dedicada con tablas de parámetros completas y ejemplos en YAML.
+
+<CardGroup cols={2}>
+  <Card title="Base de datos" icon="database" href="/es/configuration/database">
+    Elige entre SQLite (predeterminado para un solo servidor) y MySQL (redes
+    multiservidor). Configura los detalles de conexión, los ajustes del pool de HikariCP,
+    el prefijo de tablas y los tiempos de espera de operaciones asíncronas.
+  </Card>
+  <Card title="Discord" icon="discord" href="/es/configuration/discord">
+    Conecta tu bot de Discord, define el canal de aprobación, restringe las aprobaciones
+    a roles de administrador, personaliza las miniaturas de cabezas de jugador y enruta
+    los eventos de auditoría a un webhook independiente.
+  </Card>
+  <Card title="Almacenamiento" icon="box-archive" href="/es/configuration/storage">
+    Controla los límites de instantáneas por jugador, la retención basada en antigüedad
+    para instantáneas y entradas de auditoría, el filtrado de instantáneas vacías, y las
+    exclusiones por mundo o modo de juego.
+  </Card>
+  <Card title="Protecciones y solicitudes" icon="shield-halved" href="/es/configuration/protections">
+    Activa copias de seguridad de inventario antes de restaurar, exige espacios vacíos
+    antes de aplicar una restauración, captura instantáneas por desconexión en combate,
+    define tiempos de espera de solicitudes, límites de solicitudes pendientes por jugador,
+    tiempos de enfriamiento del staff, y el menú desplegable de motivos rápidos.
+  </Card>
+</CardGroup>
+
+## Configuración mínima funcional
+
+El bloque a continuación muestra el conjunto más pequeño de valores que necesitas cambiar antes de que NovaRestore esté listo para producción en un solo servidor. Todo lo demás usará su valor predeterminado incorporado.
+
+```yaml config.yml
+# Nombre visible mostrado en los embeds de Discord y las entradas de auditoría
+server:
+  name: "Survival-01"
+
+# Idioma: "en" o "es"
+lang: "en"
+
+# Base de datos — SQLite es el predeterminado; no se necesitan cambios adicionales para un solo servidor
+database:
+  type: "SQLITE"
+
+discord:
+  # Canal donde se publican los embeds de solicitudes de restauración
+  log-channel-id: "YOUR_CHANNEL_ID"
+
+  # IDs de rol que pueden aprobar o denegar solicitudes en Discord
+  admin-role-ids:
+    - "YOUR_STAFF_ROLE_ID"
+```
+
+<Tip>
+  Pasa el token del bot de Discord como argumento de la JVM para que nunca se guarde en disco:
+  `-Ddiscord.token=YOUR_TOKEN`. No coloques el token real dentro de `config.yml`.
+</Tip>

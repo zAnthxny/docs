@@ -1,0 +1,209 @@
+---
+title: "Comandos de Staff de NovaRestore — Guía de Referencia Completa"
+sidebarTitle: "Comandos"
+description: "Referencia completa de cada comando de staff de NovaRestore: explorador de instantáneas, gestión de solicitudes, exportación del registro de auditoría, y recarga del plugin con sintaxis y ejemplos."
+---
+
+NovaRestore expone un único punto de entrada de comandos — `/invrollback` (alias `/invrestore`) — con subcomandos que cubren desde abrir la GUI del explorador de instantáneas hasta gestionar solicitudes pendientes, exportar registros de auditoría, y recargar el plugin. Cada subcomando verifica un nodo de permiso dedicado antes de ejecutarse, así que puedes otorgar con seguridad solo lo que cada rol necesita.
+
+## Resumen de comandos
+
+| Subcomando | Permiso requerido | Resumen |
+|---|---|---|
+| `<player>` | `rollback.view` | Abre la GUI del explorador de instantáneas |
+| `cancel` | `rollback.manage.cancel` | Cancela una solicitud pendiente |
+| `reopen` | `rollback.manage.reopen` | Reabre una solicitud denegada |
+| `unlock` | `rollback.manage.unlock` | Desbloquea una entrada de muerte restaurada |
+| `info` / `stats` | `rollback.info` | Muestra las estadísticas de instantáneas de un jugador |
+| `history` | `rollback.info` | Lista instantáneas recientes en el chat |
+| `logs` | `rollback.logs` | Muestra las últimas 12 entradas del registro de auditoría |
+| `export` | `rollback.export` | Exporta el registro de auditoría a un archivo |
+| `reload` | `rollback.reload` | Recarga la configuración y reinicia el bot de Discord |
+
+---
+
+## Explorador de instantáneas
+
+### Abrir la GUI
+
+```bash title="Sintaxis"
+/invrollback <player> [page] [filter] [query]
+/invrestore <player> [page] [filter] [query]
+```
+
+**Permiso:** `rollback.view`
+
+Abre la GUI del explorador de instantáneas de 54 espacios para el jugador objetivo. Todos los argumentos después de `<player>` son opcionales:
+
+- `[page]` — qué página abrir (por defecto `1`)
+- `[filter]` — uno de `all`, `open`, `pending`, `queued`, `restored`, `denied` (por defecto `all`)
+- `[query]` — una cadena de búsqueda libre comparada contra el nombre, la fecha, el mundo, el motivo o el estado de la instantánea
+
+```bash title="Ejemplos"
+# Abre la primera página de todas las instantáneas de Steve
+/invrollback Steve
+
+# Abre la página 2 mostrando solo instantáneas OPEN
+/invrollback Steve 2 open
+
+# Busca en todas las instantáneas muertes en el nether
+/invrollback Steve 1 all nether
+```
+
+<Tip>
+  El autocompletado con Tab sugiere nombres de jugadores, números de página e IDs de filtro. Úsalo con frecuencia — especialmente cuando buscas el historial de instantáneas de un jugador específico de un vistazo.
+</Tip>
+
+---
+
+## Gestión de solicitudes
+
+### Cancelar una solicitud pendiente
+
+```bash title="Sintaxis"
+/invrollback cancel <deathId> <reason>
+```
+
+**Permiso:** `rollback.manage.cancel`
+
+Cancela una solicitud de restauración que está en estado PENDING o QUEUED. `<deathId>` es el identificador único de la instantánea mostrado en la descripción de la GUI o en los registros de auditoría. `<reason>` es obligatorio y admite espacios — se guarda en el registro de auditoría y se envía como notificación al jugador afectado si está en línea.
+
+```bash title="Ejemplos"
+/invrollback cancel a3f2b1 El jugador se reconectó con los ítems intactos
+/invrollback cancel d9e4c7 Solicitud duplicada, la original ya fue atendida
+```
+
+<Note>
+  El autocompletado con Tab para `cancel` solo sugiere IDs de muerte que actualmente están en estado PENDING o QUEUED, lo que evita apuntar accidentalmente a instantáneas que ya fueron resueltas.
+</Note>
+
+### Reabrir una solicitud denegada
+
+```bash title="Sintaxis"
+/invrollback reopen <deathId>
+```
+
+**Permiso:** `rollback.manage.reopen`
+
+Transiciona una solicitud DENIED de vuelta al estado OPEN y actualiza el embed de Discord vinculado para que el staff pueda procesarla de nuevo. El autocompletado con Tab solo sugiere IDs de muerte DENIED.
+
+```bash title="Ejemplo"
+/invrollback reopen d9e4c7
+```
+
+### Desbloquear una entrada restaurada
+
+```bash title="Sintaxis"
+/invrollback unlock <deathId>
+```
+
+**Permiso:** `rollback.manage.unlock`
+
+Las entradas restauradas se bloquean para evitar restauraciones dobles accidentales. Usa este comando para desbloquear una entrada de muerte RESTORED si necesitas procesarla de nuevo. El autocompletado con Tab solo sugiere IDs de muerte RESTORED.
+
+```bash title="Ejemplo"
+/invrollback unlock a3f2b1
+```
+
+<Warning>
+  Desbloquear una entrada restaurada permite que la misma instantánea se solicite y apruebe otra vez. Solo hazlo si estás seguro de que la restauración anterior estuvo incompleta o fue incorrecta.
+</Warning>
+
+---
+
+## Información del jugador
+
+### Estadísticas de instantáneas
+
+```bash title="Sintaxis"
+/invrollback info <player>
+/invrollback stats <player>
+```
+
+**Permiso:** `rollback.info`
+
+Imprime un resumen del historial de instantáneas de un jugador directamente en el chat, incluyendo el conteo total de muertes, los conteos por estado (open, pending, queued, restored, denied), los conteos de solicitudes y restauraciones auditadas, el porcentaje de tasa de denegación, y la fecha de la muerte más reciente.
+
+```bash title="Ejemplos"
+/invrollback info Steve
+/invrollback stats Steve
+```
+
+### Lista de historial de instantáneas
+
+```bash title="Sintaxis"
+/invrollback history <player> [filter] [query]
+```
+
+**Permiso:** `rollback.info`
+
+Lista hasta 12 instantáneas coincidentes recientes en el chat con su número de muerte, estado, fecha, mundo, y motivo de muerte. Admite los mismos IDs de filtro y consulta de texto libre que el comando de la GUI.
+
+```bash title="Ejemplos"
+# Todas las instantáneas recientes
+/invrollback history Steve
+
+# Solo instantáneas denegadas
+/invrollback history Steve denied
+
+# Instantáneas denegadas que coinciden con "creeper"
+/invrollback history Steve denied creeper
+```
+
+---
+
+## Registros de auditoría
+
+### Ver entradas de auditoría recientes
+
+```bash title="Sintaxis"
+/invrollback logs <player>
+```
+
+**Permiso:** `rollback.logs`
+
+Muestra las últimas 12 entradas del registro de auditoría para el jugador especificado en el chat. Cada entrada muestra la marca de tiempo, el tipo de acción, el ID de muerte, el actor (staff o SYSTEM), el estado actual, el nombre del servidor, y la nota asociada.
+
+```bash title="Ejemplo"
+/invrollback logs Steve
+```
+
+### Exportar el registro de auditoría a un archivo
+
+```bash title="Sintaxis"
+/invrollback export <yml|json> [player]
+```
+
+**Permiso:** `rollback.export`
+
+Exporta el registro de auditoría a un archivo dentro de la carpeta de datos del plugin. Elige `yml` o `json` como formato de salida. Si se proporciona `[player]` solo se exportan las entradas de ese jugador; si se omite se exporta el registro de auditoría global completo.
+
+```bash title="Ejemplos"
+# Exporta el registro de auditoría global completo como JSON
+/invrollback export json
+
+# Exporta el registro de auditoría de un solo jugador como YAML
+/invrollback export yml Steve
+```
+
+---
+
+## Administración del plugin
+
+### Recargar la configuración
+
+```bash title="Sintaxis"
+/invrollback reload
+```
+
+**Permiso:** `rollback.reload`
+
+Recarga `config.yml` desde el disco e intenta reiniciar la conexión del bot de Discord si cambiaron el token o los ajustes del canal. El servidor **no** necesita reiniciarse para que la mayoría de los cambios de configuración surtan efecto.
+
+```bash title="Ejemplo"
+/invrollback reload
+```
+
+<Warning>
+  Si el token del bot de Discord se cambió en la propiedad del sistema de la JVM (`-Ddiscord.token`), se requiere un reinicio completo del servidor porque el token se lee al iniciar la JVM. El comando reload registrará una advertencia en este caso en lugar de usar silenciosamente un token obsoleto.
+</Warning>

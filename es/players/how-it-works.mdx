@@ -1,0 +1,38 @@
+---
+title: "Cómo NovaRestore Guarda y Restaura tu Inventario"
+sidebarTitle: "Cómo funciona"
+description: "Aprende cómo NovaRestore captura tu inventario completo al morir y cómo el flujo de aprobación en Discord revisado por el staff te devuelve tus ítems."
+---
+
+NovaRestore trabaja silenciosamente en segundo plano cada vez que mueres. En el momento en que tu personaje cae, el plugin captura una instantánea completa de todo lo que llevabas — tu inventario, armadura, ítem de mano secundaria, puntos de experiencia, y contenido del ender chest — y lo guarda de forma segura en la base de datos del servidor. No necesitas pulsar nada, escribir un comando, ni siquiera darte cuenta de que está pasando. La instantánea siempre está ahí, esperando por si la necesitas.
+
+## Qué se guarda al morir
+
+Cuando mueres, NovaRestore guarda una imagen completa del estado de tu personaje en ese momento exacto:
+
+- **Inventario principal** — los 36 espacios del hotbar y de almacenamiento
+- **Espacios de armadura** — casco, peto, pantalones y botas (4 espacios)
+- **Espacio de mano secundaria** — tu escudo, tótem, o cualquier otro ítem de mano secundaria
+- **Puntos de experiencia** — tu XP total en el momento de la muerte
+- **Ender chest** — los 27 espacios de tu ender chest personal
+
+Esta instantánea está vinculada a un ID de muerte único y queda inmediatamente disponible para que el staff la revise mediante las herramientas de gestión del plugin.
+
+## Cómo recuperas tus ítems
+
+Tú no envías las solicitudes de restauración por tu cuenta — ese proceso pasa por un flujo revisado por el staff para prevenir abusos y garantizar equidad. Así es como funciona de principio a fin:
+
+1. **Contactas a un miembro del staff** y le informas que perdiste ítems que te gustaría recuperar.
+2. **El staff abre el menú de instantáneas** de tu cuenta, encuentra el evento de muerte en cuestión, y envía una solicitud de restauración en tu nombre.
+3. **La solicitud aparece en un canal dedicado de Discord** donde el staff autorizado la revisa. Pueden ver exactamente qué perdiste, cuándo y dónde moriste, y el motivo proporcionado.
+4. **Un administrador de Discord aprueba o deniega la solicitud.** Elige qué restaurar — todo a la vez, o categorías específicas de ítems.
+5. **Si estás en línea cuando se aprueba**, tus ítems aparecen en tu inventario de inmediato y recibes una notificación dentro del juego.
+6. **Si estás desconectado cuando se aprueba**, la restauración queda en cola. La próxima vez que inicies sesión, tus ítems se entregan automáticamente y recibes un mensaje de notificación.
+
+## Notificaciones
+
+Si el servidor tiene activadas las notificaciones para jugadores, recibirás un mensaje de chat dentro del juego cada vez que cambie el estado de tu solicitud — incluyendo cuándo es aprobada, denegada, cancelada por el staff, o expira. Estos mensajes aparecen directamente en el chat para que siempre sepas cómo va todo sin tener que preguntar.
+
+<Note>
+El administrador del servidor controla en qué mundos y modos de juego está activo NovaRestore. Si mueres en un mundo o modo de juego específico (como creativo o minijuegos) y no ves ningún registro, es posible que el servidor haya excluido ese mundo del seguimiento de instantáneas. Consulta con un miembro del staff si no estás seguro.
+</Note>
