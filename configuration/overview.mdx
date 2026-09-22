@@ -1,0 +1,102 @@
+---
+title: "NovaRestore Configuration Reference Overview"
+sidebarTitle: "Overview"
+description: "A guided tour of all NovaRestore configuration sections: database, Discord, storage retention, request handling, and player protections."
+---
+
+NovaRestore stores every configuration option in a single file that is generated automatically the first time the plugin loads. Understanding the layout of that file — and knowing which section controls which behaviour — makes day-to-day administration much easier. This page walks you through where the file lives, how to apply changes at runtime, and what each top-level section is responsible for.
+
+## Config file location
+
+NovaRestore writes its configuration to:
+
+```text plugins/NovaRestore/config.yml
+plugins/NovaRestore/config.yml
+```
+
+If the file does not exist when the server starts, the plugin copies a fully-commented default from inside the jar. You can edit any value in that file and reload it without restarting the server.
+
+## Applying changes without a restart
+
+Run the following command from the server console or as a player with the `rollback.reload` permission:
+
+```bash in-game or console
+/invrollback reload
+```
+
+This command re-reads `config.yml`, reconnects to the database if connection settings changed, and refreshes the Discord bot configuration. The alias `/invrestore reload` works identically.
+
+<Note>
+  If you change the Discord bot token you must restart the server rather than
+  reload. The JVM argument that holds the token is only read during startup.
+  See the [Discord page](/configuration/discord) for details.
+</Note>
+
+## Discord bot token
+
+The bot token is **not** stored in `config.yml`. Pass it as a JVM argument when you start the server so it is never written to disk in plain text:
+
+```bash server-start.sh
+java -Ddiscord.token=YOUR_BOT_TOKEN_HERE -jar paper.jar
+```
+
+The `discord.bot-token` key in `config.yml` is intentionally left as a placeholder label. NovaRestore ignores it at runtime and reads only the JVM property.
+
+## Configuration sections
+
+The five sections below cover the entire feature surface of `config.yml`. Each one has its own dedicated page with full parameter tables and YAML examples.
+
+<CardGroup cols={2}>
+  <Card title="Database" icon="database" href="/configuration/database">
+    Choose between SQLite (single-server default) and MySQL (multi-server
+    networks). Configure connection details, HikariCP pool settings, the table
+    prefix, and async operation timeouts.
+  </Card>
+  <Card title="Discord" icon="discord" href="/configuration/discord">
+    Connect your Discord bot, set the approval channel, gate approvals behind
+    admin roles, customise player-head thumbnails, and route audit events to a
+    separate webhook.
+  </Card>
+  <Card title="Storage" icon="box-archive" href="/configuration/storage">
+    Control per-player snapshot limits, age-based retention for snapshots and
+    audit entries, empty-snapshot filtering, and world or game-mode exclusions.
+  </Card>
+  <Card title="Requests" icon="paper-plane" href="/configuration/protections">
+    Set request timeouts, per-player pending caps, staff cooldowns, and the
+    pre-filled quick-reason dropdown shown in Discord.
+  </Card>
+  <Card title="Protections" icon="shield-halved" href="/configuration/protections">
+    Enable pre-restore inventory backups, require empty slots before a restore
+    applies, and capture combat-logout snapshots to guard against disconnect abuse.
+  </Card>
+</CardGroup>
+
+## Minimal working config
+
+The block below shows the smallest set of values you need to change before NovaRestore is production-ready on a single server. Everything else will use its built-in default.
+
+```yaml config.yml
+# Display name shown in Discord embeds and audit entries
+server:
+  name: "Survival-01"
+
+# Language: "en" or "es"
+lang: "en"
+
+# Database — SQLite is the default; no extra changes needed for a single server
+database:
+  type: "SQLITE"
+
+discord:
+  # Channel where rollback request embeds are posted
+  log-channel-id: "YOUR_CHANNEL_ID"
+
+  # Role IDs that can approve or deny requests in Discord
+  admin-role-ids:
+    - "YOUR_STAFF_ROLE_ID"
+```
+
+<Tip>
+  Pass the Discord bot token as a JVM argument so it is never stored on disk:
+  `-Ddiscord.token=YOUR_TOKEN`. Do not put the real token inside `config.yml`.
+</Tip>

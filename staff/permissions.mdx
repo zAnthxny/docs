@@ -1,0 +1,115 @@
+---
+title: "NovaRestore Permission Nodes for Staff and Players"
+sidebarTitle: "Permissions"
+description: "All NovaRestore permission nodes — from rollback.view for staff to rollback.request for players — with recommended role configurations for common server setups."
+---
+
+NovaRestore ships with ten granular permission nodes so you can tailor exactly which features each staff tier and your player base can access. No permission is granted by default — you must assign them explicitly through your permissions plugin. The wildcard node `rollback.admin.all` is available when you want to grant unrestricted access to a trusted role.
+
+<Note>
+  Permissions are evaluated using Bukkit's standard permission system. Any permissions plugin that integrates with Bukkit (LuckPerms, PermissionsEx, PowerRanks, etc.) is fully compatible.
+</Note>
+
+---
+
+## All Permission Nodes
+
+| Node | Who Should Have It | Description |
+|---|---|---|
+| `rollback.view` | Staff (all tiers) | Open the snapshot browser GUI for any player. Required to use `/invrollback <player>`. |
+| `rollback.request` | Players, Staff | Submit an inventory restore request from the inspection menu. Without this node, the request button is inactive. |
+| `rollback.info` | Staff (all tiers) | View snapshot statistics (`info`/`stats`) and recent history (`history`) for any player. |
+| `rollback.logs` | Senior Staff, Moderator+ | View the last 12 audit log entries for a player via `/invrollback logs`. |
+| `rollback.manage.cancel` | Moderator+ | Cancel a pending restore request by death ID with a required reason. |
+| `rollback.manage.reopen` | Moderator+ | Reopen a denied request, moving it back to OPEN state. |
+| `rollback.manage.unlock` | Moderator+ | Unlock a RESTORED death entry to allow it to be processed again. |
+| `rollback.export` | Admin+ | Export audit log data to YAML or JSON files on disk. |
+| `rollback.reload` | Admin+ | Reload `config.yml` and restart the Discord bot connection. |
+| `rollback.admin.all` | Owner, Admin | Wildcard that grants **all** of the above nodes simultaneously. |
+
+---
+
+## Recommended Role Configurations
+
+The table below maps the four most common server roles to the permissions they typically need. Adjust these to fit your own hierarchy.
+
+| Role | Recommended Permissions |
+|---|---|
+| **Owner / Admin** | `rollback.admin.all` |
+| **Moderator** | `rollback.view`, `rollback.info`, `rollback.logs`, `rollback.manage.cancel`, `rollback.manage.reopen`, `rollback.manage.unlock` |
+| **Helper** | `rollback.view`, `rollback.info` |
+| **Player** | `rollback.request` |
+
+---
+
+## LuckPerms Configuration Example
+
+The snippets below show how to apply these roles using LuckPerms commands or the `config.yml` format. Adapt the group names to match your server.
+
+<Tabs>
+  <Tab title="LuckPerms Commands">
+    ```bash title="Owner / Admin group"
+    /lp group admin permission set rollback.admin.all true
+    ```
+
+    ```bash title="Moderator group"
+    /lp group moderator permission set rollback.view true
+    /lp group moderator permission set rollback.info true
+    /lp group moderator permission set rollback.logs true
+    /lp group moderator permission set rollback.manage.cancel true
+    /lp group moderator permission set rollback.manage.reopen true
+    /lp group moderator permission set rollback.manage.unlock true
+    ```
+
+    ```bash title="Helper group"
+    /lp group helper permission set rollback.view true
+    /lp group helper permission set rollback.info true
+    ```
+
+    ```bash title="Player / default group"
+    /lp group default permission set rollback.request true
+    ```
+  </Tab>
+  <Tab title="YAML (groups.yml style)">
+    ```yaml title="LuckPerms groups.yml excerpt"
+    groups:
+      admin:
+        permissions:
+          - rollback.admin.all
+
+      moderator:
+        permissions:
+          - rollback.view
+          - rollback.info
+          - rollback.logs
+          - rollback.manage.cancel
+          - rollback.manage.reopen
+          - rollback.manage.unlock
+
+      helper:
+        permissions:
+          - rollback.view
+          - rollback.info
+
+      default:
+        permissions:
+          - rollback.request
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Permission Inheritance Notes
+
+<AccordionGroup>
+  <Accordion title="Does rollback.admin.all also cover rollback.request?">
+    Yes. `rollback.admin.all` is declared as a parent in `plugin.yml` and explicitly includes `rollback.request`. Admins can submit requests from the inspection menu just like regular players can.
+  </Accordion>
+  <Accordion title="What happens if a player has no permissions at all?">
+    Running `/invrollback` without any matching permission displays a "no permission" message and nothing is revealed about available subcommands. No permission node defaults to `true`, so your players start with a clean slate.
+  </Accordion>
+  <Accordion title="Can I grant only the wildcard and skip individual nodes?">
+    Yes. Assigning `rollback.admin.all` to a group is fully equivalent to assigning all nine individual nodes. You do not need to list them separately unless you want to mix and match — for example, granting `rollback.admin.all` but then explicitly negating `rollback.reload` for a semi-trusted admin.
+  </Accordion>
+</AccordionGroup>

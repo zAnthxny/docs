@@ -1,47 +1,184 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with NovaRestore in 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Configure NovaRestore's Discord integration, assign staff permissions, and process your first inventory restore request in under 5 minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+Once NovaRestore is installed and your server has booted at least once, you have a working `config.yml` and a local SQLite database already in place. This guide walks you through the remaining setup — connecting your Discord bot, assigning permissions, and processing a real restore request — so your staff can start approving rollbacks immediately.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+<Note>
+  This guide assumes you have already completed the [Installation](/installation) steps and that NovaRestore's ASCII banner appeared in your console without errors.
+</Note>
 
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Setup Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Open config.yml">
+    Navigate to `plugins/NovaRestore/` on your server and open `config.yml` in a text editor. This file was generated automatically on first boot and contains all of NovaRestore's configurable options with inline comments.
 
-    ```bash
-    npm install your-package
+    ```text filesystem
+    plugins/
+    └── NovaRestore/
+        ├── config.yml      ← open this file
+        ├── data.db
+        └── messages.yml
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
+  <Step title="Set Your Server Display Name">
+    Find the `server` section near the top of `config.yml` and set `name` to the display name you want to appear in Discord embeds. This value is purely cosmetic — it identifies which server a restore request came from inside the Discord channel.
+
+    ```yaml config.yml
+    server:
+      name: "My Server"
+    ```
+
+    Choose a name that is meaningful to your staff. If you run multiple servers pointing to the same Discord channel, each should have a unique name here so requests are easy to distinguish.
+  </Step>
+
+  <Step title="Pass the Discord Bot Token as a JVM Argument">
+    NovaRestore requires a Discord bot token to post embeds and receive button interactions. Instead of storing the token in `config.yml`, you supply it as a JVM startup argument. This keeps the token out of your config file and away from accidental exposure in screenshots, backups, or version control.
+
+    Add the following argument to your server startup command:
+
+    ```bash startup-command.sh
+    java -Ddiscord.token=YOUR_BOT_TOKEN -jar paper-1.21.4.jar nogui
+    ```
+
+    Replace `YOUR_BOT_TOKEN` with the actual token from your Discord Developer Portal application. If you use a startup script or a server management panel, add the `-D` flag in the same location as your other JVM arguments (before `-jar`).
+
+    <Tip>
+      Store your bot token in a secure secrets manager or environment variable rather than writing it directly into a shell script that might be committed to a repository. Many deployment panels support injecting JVM arguments from environment variables — check your host's documentation for the exact syntax.
+    </Tip>
+
+    The bot needs the following Discord permissions to function:
+    - **Send Messages** and **Embed Links** in the log channel
+    - **Read Message History** in the log channel
+    - The **bot** and **applications.commands** OAuth2 scopes when generating the invite URL
+  </Step>
+
+  <Step title="Set the Discord Log Channel ID">
+    Back in `config.yml`, set `discord.log-channel-id` to the ID of the Discord channel where restore request embeds should appear. To copy a channel ID in Discord, enable Developer Mode in your Discord settings, then right-click the channel and select **Copy Channel ID**.
+
+    ```yaml config.yml
+    server:
+      name: "My Server"
+
+    discord:
+      log-channel-id: "123456789012345678"
+    ```
+
+    Save the file. This change takes effect on the next server restart (or plugin reload with `/novaRestore reload` if your build supports it).
+
+    <Warning>
+      The channel ID must be wrapped in quotes in YAML. Unquoted numeric strings longer than 15 digits may be parsed as a floating-point number and truncated, which will cause Discord API calls to fail silently.
+    </Warning>
+  </Step>
+
+  <Step title="Assign Permissions to Staff and Players">
+    NovaRestore uses two primary permissions. Assign them using your server's permission plugin (LuckPerms, PermissionsEx, or equivalent).
+
+    | Permission | Who needs it | What it allows |
+    |---|---|---|
+    | `rollback.view` | Staff members | Open the in-game death snapshot GUI and submit restore requests |
+    | `rollback.request` | Players | Submit their own restore request from the death screen without staff involvement |
+
+    **LuckPerms examples:**
+
+    ```text luckperms-commands
+    # Grant a staff group the ability to open and use the restore GUI
+    /lp group staff permission set rollback.view true
+
+    # Grant all players the ability to request their own restore
+    /lp group default permission set rollback.request true
+    ```
+
+    Restart the server (or use `/lp editor` to apply changes) before proceeding.
+  </Step>
+
+  <Step title="Test: Trigger a Death Snapshot">
+    With permissions in place, trigger a test death to create a snapshot you can work with. The easiest approach is to switch a test account (or your own account) to creative mode, remove their armor, and deal enough damage to kill them in survival mode — or simply use `/kill <playerName>` in the console.
+
+    ```text console-command
+    /kill TestPlayer
+    ```
+
+    NovaRestore captures the snapshot at the moment of death. You should see a confirmation in the console:
+
+    ```text console
+    [NovaRestore] Snapshot saved for TestPlayer (death #1) at world,100,64,-200
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
+  <Step title="Open the GUI and Submit a Restore Request">
+    Now open the staff restore GUI by running the following command as an operator or a player with `rollback.view`:
+
+    ```text in-game-command
+    /invrollback TestPlayer
     ```
+
+    A chest GUI opens showing all recorded death snapshots for `TestPlayer`, sorted newest-first. Click the snapshot you just created. You are prompted to enter a reason for the restore — type something like `Testing the workflow` and confirm.
+
+    NovaRestore posts a Discord embed to your configured log channel. The embed contains:
+    - The player name and death location
+    - The timestamp of the death
+    - A preview of the items in the snapshot
+    - The reason you entered
+    - **Approve** and **Deny** buttons
+
+    Click **Approve** in Discord. NovaRestore's bot receives the interaction, restores the inventory to `TestPlayer` (immediately if they are online), and updates the embed to show the approved status with your Discord username as the reviewer.
+
+    <Info>
+      If the Discord embed does not appear within a few seconds, double-check that the bot is online in your Discord server, that the `log-channel-id` is correct, and that the bot has permission to send messages in that channel.
+    </Info>
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Minimal Configuration Reference
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+The following block shows the minimum `config.yml` values you need to set before NovaRestore's Discord integration is operational. All other options are optional and documented on the [Configuration](/configuration) page.
+
+```yaml config.yml
+server:
+  name: "My Server"
+
+discord:
+  log-channel-id: "123456789012345678"
+```
+
+<Note>
+  This minimal config relies on all other settings being at their defaults: SQLite database, English messages, and standard GUI layout. See the full [Configuration Reference](/configuration) for every available option including MySQL setup, message customisation, and snapshot retention policies.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Staff Commands"
+    icon="terminal"
+    href="/staff/commands"
+  >
+    Full reference for `/invrollback`, `/invrestore`, and all supporting commands available to staff.
+  </Card>
+  <Card
+    title="Configuration Reference"
+    icon="sliders"
+    href="/configuration"
+  >
+    Every option in `config.yml` explained, including MySQL, message overrides, and retention settings.
+  </Card>
+  <Card
+    title="Permissions Reference"
+    icon="shield-check"
+    href="/staff/permissions"
+  >
+    Complete list of all NovaRestore permission nodes with descriptions and recommended role assignments.
+  </Card>
+  <Card
+    title="Discord Bot Setup"
+    icon="discord"
+    href="/configuration/discord"
+  >
+    Create and configure the Discord application, set required intents, and generate an invite URL.
+  </Card>
+</CardGroup>

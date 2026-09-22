@@ -1,0 +1,170 @@
+---
+title: "Processing Inventory Restore Requests in Discord"
+sidebarTitle: "Discord Workflow"
+description: "How to review and approve or deny NovaRestore inventory restore requests from Discord: reading the embed, selecting a restore type, and handling queued offline restores."
+---
+
+When a staff member submits a restore request from the in-game inspection menu, NovaRestore immediately posts a rich embed to your configured Discord channel. From that point, authorised Discord staff select a restore type (or deny the request) using an interactive dropdown. The plugin then applies the items automatically — either instantly if the player is online, or on their next login if they are offline.
+
+<Note>
+  Approving and denying requests in Discord requires the user to have one of the role IDs listed under `discord.admin-role-ids` in `config.yml`, **if** `discord.require-admin-role` is set to `true`. If no role filter is configured, anyone with access to the channel can interact with the dropdown.
+</Note>
+
+---
+
+## The Request Embed
+
+Each request appears in Discord as an embed with the following information:
+
+| Field | Description |
+|---|---|
+| **Title** | Player name and current request status (e.g. "Restore request — Steve") |
+| **Thumbnail** | Player's head fetched via the configured `discord.thumbnail-url-template` |
+| **Requested By** | The staff member who submitted the request in-game |
+| **Player** | The player whose inventory is being restored |
+| **Reviewed By** | Empty until a staff member acts; updated on approval or denial |
+| **Server** | The server where the death occurred (`server.name` from config) |
+| **Location** | World and block coordinates of the death |
+| **Death Reason** | Human-readable description of how the player died |
+| **Request Date** | When the request was submitted |
+| **Death Date** | When the original death snapshot was captured |
+| **Rollback Reason** | The reason the submitting staff member entered in-game (if provided) |
+| **Inventory Preview** | An auto-generated PNG image showing the full inventory, armour, and offhand at the time of death |
+
+The embed footer repeats the server name, death coordinates, and death ID for quick reference.
+
+---
+
+## Selecting a Restore Type
+
+The embed includes a **dropdown menu** directly below it. Click or tap the dropdown to choose one of the following options:
+
+<AccordionGroup>
+  <Accordion title="Full Restore">
+    Restores everything captured in the snapshot: main inventory contents, armour slots, offhand slot, XP levels, and ender chest. Use this when the player lost everything and you want to give it all back.
+  </Accordion>
+  <Accordion title="Inventory Only">
+    Restores only the 36 main inventory slots (hotbar + storage). Armour, offhand, XP, and ender chest are not touched.
+  </Accordion>
+  <Accordion title="Armor Only">
+    Restores only the four armour slots (helmet, chestplate, leggings, boots). Inventory contents and other sections are unchanged.
+  </Accordion>
+  <Accordion title="Offhand">
+    Restores only the offhand slot. Useful for returning a totem or shield without affecting anything else.
+  </Accordion>
+  <Accordion title="XP Only">
+    Restores only the player's experience level. No items are moved. Use this when a player died to a bug that drained XP without losing items.
+  </Accordion>
+  <Accordion title="Ender Chest">
+    Restores the ender chest contents captured at the time of death. Main inventory and other sections are not affected.
+  </Accordion>
+  <Accordion title="Other (Granular)">
+    Opens a second dropdown with individual item-category options. Only categories that contain at least one matching item in the snapshot are shown. Available categories:
+
+    | Category | What Gets Restored |
+    |---|---|
+    | Sword | All items whose material name ends in `_SWORD` |
+    | Pickaxe | All items whose material name ends in `_PICKAXE` |
+    | Axe | All items whose material name ends in `_AXE` (excluding pickaxes) |
+    | Shovel | All items whose material name ends in `_SHOVEL` |
+    | Helmet | Helmet from armour slot and any helmets in the inventory |
+    | Chestplate | Chestplate from armour slot and matching inventory items |
+    | Leggings | Leggings from armour slot and matching inventory items |
+    | Boots | Boots from armour slot and matching inventory items |
+    | Offhand | Offhand slot only (same as the top-level Offhand option) |
+
+    You can select multiple categories before confirming.
+  </Accordion>
+  <Accordion title="Deny">
+    Rejects the request. The embed updates to show a denied status. If `notifications.notify-target-player` is `true` in config, the player receives an in-game notification if they are online.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## What Happens After Approval
+
+<Steps>
+  <Step title="Embed updates">
+    The Discord embed immediately updates its title, description colour, and **Reviewed By** field to reflect the approved restore type and the Discord user who acted.
+  </Step>
+  <Step title="Items are delivered (online player)">
+    If the player is currently online, NovaRestore applies the selected restore type to their live inventory right away. The player receives an in-game notification that the restore was applied.
+  </Step>
+  <Step title="Items are queued (offline player)">
+    If the player is offline, the snapshot transitions to **QUEUED** state. The embed updates again to show the queued status. When the player logs in, NovaRestore automatically delivers the items and transitions the snapshot to **RESTORED**.
+  </Step>
+  <Step title="Audit log entry created">
+    Every action — approval, denial, delivery — is written to the plugin's audit log and, if configured, also dispatched to `discord.audit-webhook-url` as a separate webhook message.
+  </Step>
+</Steps>
+
+---
+
+## What Happens After Denial
+
+When you select **Deny** from the dropdown:
+
+1. The snapshot transitions from PENDING → DENIED.
+2. The Discord embed updates with a red denied status and your username in the **Reviewed By** field.
+3. The interactive dropdown is removed so the embed cannot be acted on again.
+4. If notifications are enabled in config, the affected player receives an in-game message the next time they are online.
+
+A denied request is not permanent. Any staff member with `rollback.manage.reopen` can return the snapshot to OPEN state:
+
+```bash title="Reopen a denied request"
+/invrollback reopen <deathId>
+```
+
+The embed in Discord will update to reflect the reopened status and the dropdown is restored so a new decision can be made.
+
+---
+
+## Cancelling a Request from In-Game
+
+If a pending request is no longer needed — for example, the player reconnected with their items intact — a staff member with `rollback.manage.cancel` can cancel it without using Discord:
+
+```bash title="Cancel a pending request"
+/invrollback cancel <deathId> <reason>
+```
+
+The `<reason>` is required and multi-word. It is stored in the audit log and appended to the Discord embed as a note.
+
+---
+
+## Request Timeouts
+
+Pending requests automatically expire after the number of minutes configured in `requests.timeout-minutes` (default: `1440` minutes / 24 hours). When a request times out:
+
+- The snapshot transitions from PENDING → OPEN (making it eligible to be requested again).
+- The Discord embed updates to show an **Expired** status with an amber colour.
+- A TIMEOUT entry is written to the audit log by the SYSTEM actor.
+
+To disable auto-expiry entirely, set `requests.timeout-minutes: 0` in `config.yml`. Note that if `requests.max-pending-per-player` is also positive, the plugin internally uses a 1 440-minute effective timeout to prevent requests from blocking a player's slot permanently.
+
+---
+
+## Lifecycle State Reference
+
+The diagram below shows every state a snapshot can move through and which action triggers each transition.
+
+```
+OPEN ──── request submitted ──────────────► PENDING
+  ▲                                           │
+  │                                     Discord action
+  │                                     ┌────┴────┐
+  │              player online           ▼         ▼
+  │           ◄── approved ──────── RESTORED    QUEUED ── player logs in ──► RESTORED
+  │                                               │
+  │                                           denied
+  │                                               ▼
+  └──────── /invrollback reopen ──────────── DENIED
+```
+
+| State | Colour in Discord | Meaning |
+|---|---|---|
+| OPEN | Green | No active request; available to be requested |
+| PENDING | Blurple (blue-purple) | Request sent to Discord; awaiting staff action |
+| QUEUED | Blue | Approved; waiting for player to come online |
+| RESTORED | Dark green | Items delivered successfully |
+| DENIED | Red | Request rejected by staff |

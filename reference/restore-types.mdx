@@ -1,0 +1,70 @@
+---
+title: "NovaRestore Restore Types: Full, Partial, and Granular"
+sidebarTitle: "Restore Types"
+description: "Reference for all NovaRestore restore types — from Full (all slots) to granular categories like Sword, Helmet, or XP Only — with exactly what each restores."
+---
+
+NovaRestore gives staff precise control over what gets restored after a player death. Rather than forcing an all-or-nothing decision, the plugin offers two tiers of restore types: **standard types** that operate on well-defined sections of a player's inventory, and **granular (custom) types** that target individual item categories down to a single tool or armor piece. Understanding these types helps staff make the right restore decision for every situation.
+
+<Note>
+A restore only includes data that was actually captured in the snapshot. If a player had an empty ender chest when they died, selecting `ENDER_CHEST` will restore nothing. The plugin uses the exact state recorded at death.
+</Note>
+
+## Standard Restore Types
+
+Standard types are the primary restore options shown in the Discord approval workflow. Each one maps directly to one or more inventory sections.
+
+| Type | What Is Restored | Slots Affected |
+|---|---|---|
+| `FULL` | Everything — inventory, armor, offhand, XP, and ender chest | 36 + 4 + 1 + XP + 27 |
+| `INVENTORY` | Main inventory only | 36 hotbar and storage slots |
+| `ARMOR` | Equipped armor only | 4 armor slots (helmet, chestplate, leggings, boots) |
+| `OFFHAND` | Offhand slot only | 1 offhand slot |
+| `XP` | Experience points only | Total XP counter |
+| `ENDER_CHEST` | Ender chest contents only | 27 ender chest slots |
+
+`FULL` is the most comprehensive option and restores everything in one action. The targeted types (`INVENTORY`, `ARMOR`, `OFFHAND`, `XP`, `ENDER_CHEST`) are useful when only part of a player's loadout needs to be returned — for example, restoring just their armor after a PvP death where they kept their inventory.
+
+## Granular (Custom) Restore Types
+
+Granular types are accessed through the **"Others"** dropdown in the Discord approval workflow. They allow staff to restore one or more specific item categories in a single action — for example, returning only the player's sword and pickaxe without touching anything else.
+
+### Tool Categories
+
+Tool categories scan the player's **main inventory slots** (all 36) and restore every item whose material name ends with the matching suffix.
+
+| Type | Matches Items Ending With |
+|---|---|
+| `SWORD` | `_SWORD` (e.g. `DIAMOND_SWORD`, `NETHERITE_SWORD`) |
+| `PICKAXE` | `_PICKAXE` (e.g. `IRON_PICKAXE`, `NETHERITE_PICKAXE`) |
+| `AXE` | `_AXE` (e.g. `STONE_AXE`, `GOLDEN_AXE`) — pickaxes are excluded |
+| `SHOVEL` | `_SHOVEL` (e.g. `WOODEN_SHOVEL`, `DIAMOND_SHOVEL`) |
+
+When a tool category is applied, matching items from the snapshot are placed back into their original inventory slots if those slots are empty, or into the first available empty slot if the original position is occupied.
+
+### Armor Categories
+
+Armor categories restore from **two locations simultaneously**: any matching items found in the main inventory slots, and the corresponding dedicated armor slot.
+
+| Type | Matches Items Ending With | Armor Slot |
+|---|---|---|
+| `HELMET` | `_HELMET` | Head slot |
+| `CHESTPLATE` | `_CHESTPLATE` | Chest slot |
+| `LEGGINGS` | `_LEGGINGS` | Legs slot |
+| `BOOTS` | `_BOOTS` | Feet slot |
+
+For example, selecting `HELMET` will restore a diamond helmet found anywhere in the snapshot's main inventory, *and* also restore the helmet from the dedicated head slot if one was worn at the time of death. If the player's current armor slot is already occupied, the restored piece is placed into the main inventory instead.
+
+### Granular Offhand
+
+| Type | What Is Restored |
+|---|---|
+| `OFFHAND` | The single offhand slot from the snapshot |
+
+This is the granular equivalent of the standard `OFFHAND` type and is available alongside other custom selections in the "Others" multi-select dropdown.
+
+## Combining Granular Types
+
+The "Others" dropdown in the Discord workflow supports **multi-select** — staff can choose any combination of granular types (for example, `SWORD` + `PICKAXE` + `HELMET`) and apply them all in a single restore action. The plugin validates that sufficient inventory space exists before applying, and processes each selected type in sequence.
+
+If none of the granular types selected match any items in the snapshot, the restore is rejected with an appropriate message so staff can choose a different option.

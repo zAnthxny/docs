@@ -1,0 +1,85 @@
+---
+title: "NovaRestore Storage and Retention Configuration"
+sidebarTitle: "Storage"
+description: "Control how many snapshots NovaRestore keeps per player, how long they are retained, and which worlds or game modes are excluded from snapshot capture."
+---
+
+Every time a player dies, NovaRestore captures a snapshot of their full inventory, armour, off-hand slot, ender chest, and current XP. Over time those snapshots accumulate. The `storage` section of `config.yml` lets you set hard limits on how many snapshots are kept per player, how long they survive before automatic purging, and which deaths should not be captured at all (by world or game mode).
+
+## Snapshot retention
+
+Retention is controlled by three keys nested under `storage.retention`. The plugin enforces both limits simultaneously — a snapshot is removed if either rule applies.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `storage.retention.max-snapshots-per-player` | `100` | Maximum number of snapshots stored for each player. When a new snapshot would exceed this count, the oldest snapshots for that player are deleted first. Set to `0` to keep unlimited snapshots (not recommended for long-running servers). |
+| `storage.retention.max-snapshot-age-days` | `45` | Snapshots older than this many days are automatically purged during startup and periodic maintenance. Set to `0` to disable age-based purging. |
+| `storage.retention.max-audit-age-days` | `90` | Audit log entries older than this many days are purged. Set to `0` to disable audit purging entirely and retain all entries indefinitely. |
+
+<Info>
+  Retention runs automatically at startup and then every 6 hours (432 000
+  server ticks). You do not need to schedule any external cron jobs.
+</Info>
+
+## Skipping empty snapshots
+
+When a player dies carrying absolutely nothing — no items, no armour, and zero XP — saving a snapshot wastes storage without providing any useful restore data.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `storage.skip-empty-death-snapshots` | `true` | When `true`, deaths where the player has no items and no XP do not produce a snapshot. Deaths that include at least one item, armour piece, or any XP are always saved regardless of this setting. |
+
+<Note>
+  A player who loses their ender chest contents at death is **not** considered
+  "empty" — ender chest data is captured in the snapshot and its presence
+  overrides this skip-logic.
+</Note>
+
+## World and game-mode filters
+
+You can prevent NovaRestore from saving snapshots in specific worlds or for players in specific game modes. Filters are disabled by default.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `storage.filters.enabled` | `false` | Master switch for the filter system. When `false`, the `blocked-worlds` and `blocked-gamemodes` lists are ignored entirely. |
+| `storage.filters.blocked-worlds` | `[]` | List of world names (case-insensitive) where deaths should not be snapshotted. Use the exact name from your server's world folder. |
+| `storage.filters.blocked-gamemodes` | `[]` | List of game-mode names (case-insensitive) to skip. Valid values: `SURVIVAL`, `CREATIVE`, `ADVENTURE`, `SPECTATOR`. |
+
+<Tip>
+  For most survival servers you should block `CREATIVE` and `SPECTATOR` at a
+  minimum. Creative-mode players have effectively infinite items, so their
+  snapshots are almost never useful and just consume storage. Spectator deaths
+  do not drop items, so snapshotting them is pointless.
+
+  ```yaml
+  storage:
+    filters:
+      enabled: true
+      blocked-gamemodes:
+        - "CREATIVE"
+        - "SPECTATOR"
+  ```
+</Tip>
+
+## Example production config block
+
+The following block shows a typical configuration for a mid-sized survival server — aggressive retention to keep storage manageable, empty-snapshot skipping enabled, and CREATIVE/SPECTATOR excluded.
+
+```yaml config.yml
+storage:
+  skip-empty-death-snapshots: true
+
+  retention:
+    max-snapshots-per-player: 50
+    max-snapshot-age-days: 30
+    max-audit-age-days: 60
+
+  filters:
+    enabled: true
+    blocked-worlds:
+      - "world_creative"
+      - "minigames"
+    blocked-gamemodes:
+      - "CREATIVE"
+      - "SPECTATOR"
+```

@@ -1,0 +1,38 @@
+---
+title: "How NovaRestore Saves and Restores Your Inventory"
+sidebarTitle: "How It Works"
+description: "Learn how NovaRestore automatically captures your inventory when you die and how the staff-reviewed Discord approval workflow gets your items back."
+---
+
+NovaRestore works silently in the background every time you die. The moment your character falls, the plugin captures a complete snapshot of everything you were carrying — your inventory, armor, offhand item, experience points, and ender chest contents — and stores it securely in the server database. You do not need to press anything, type a command, or even be aware it is happening. The snapshot is always there, waiting in case you need it.
+
+## What Gets Saved on Death
+
+When you die, NovaRestore saves a full picture of your character state at that exact moment:
+
+- **Main inventory** — all 36 hotbar and storage slots
+- **Armor slots** — helmet, chestplate, leggings, and boots (4 slots)
+- **Offhand slot** — your shield, totem, or any other offhand item
+- **Experience points** — your total XP at the time of death
+- **Ender chest** — all 27 slots of your personal ender chest
+
+This snapshot is tied to a unique death ID and is immediately available for staff to review through the plugin's management tools.
+
+## How You Get Your Items Back
+
+You do not submit restore requests yourself — that process goes through a staff-reviewed workflow to prevent abuse and ensure fairness. Here is how it works end to end:
+
+1. **You contact a staff member** and let them know you lost items you would like restored.
+2. **Staff opens the snapshot menu** for your account, finds the death event in question, and submits a restore request on your behalf.
+3. **The request appears in a dedicated Discord channel** where authorized staff review it. They can see exactly what you lost, when and where you died, and the reason provided.
+4. **A Discord admin approves or denies the request.** They choose what to restore — everything at once, or specific item categories.
+5. **If you are online when it is approved**, your items appear in your inventory immediately and you receive an in-game notification.
+6. **If you are offline when it is approved**, the restore is queued. The next time you log in, your items are delivered automatically and you receive a notification message.
+
+## Notifications
+
+If the server has player notifications enabled, you will receive an in-game chat message whenever the status of your request changes — including when it is approved, denied, cancelled by staff, or timed out. These messages appear directly in chat so you always know where things stand without having to ask.
+
+<Note>
+The server administrator controls which worlds and game modes NovaRestore is active in. If you die in a specific world or game mode (such as creative or minigames) and do not see any record, the server may have excluded that world from snapshot tracking. Check with a staff member if you are unsure.
+</Note>

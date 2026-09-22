@@ -1,0 +1,101 @@
+{
+  "projectType": "general",
+  "projectName": "NovaRestore",
+  "projectDescription": "A Paper Minecraft plugin that automatically captures player inventory snapshots on death and routes staff-reviewed restore requests through a Discord approval workflow.",
+  "theme": "luma",
+  "primaryColor": "#5865F2",
+  "lightColor": "#7289DA",
+  "darkColor": "#3A3F8F",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/overview",
+              "configuration/database",
+              "configuration/discord",
+              "configuration/storage",
+              "configuration/protections"
+            ]
+          },
+          {
+            "group": "Staff Guide",
+            "pages": [
+              "staff/commands",
+              "staff/permissions",
+              "staff/snapshot-menu",
+              "staff/discord-workflow"
+            ]
+          },
+          {
+            "group": "Player Guide",
+            "pages": [
+              "players/how-it-works",
+              "players/requesting-restore"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/restore-types",
+              "reference/snapshot-states",
+              "reference/audit-log",
+              "reference/faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Automatic death snapshot capture — inventory, armor, offhand, XP, and ender chest saved on every death",
+    "Discord approval workflow — rollback requests are sent to a configurable Discord channel for staff review",
+    "Granular restore types — restore full inventory, armor only, weapons only, XP only, ender chest, or any combination",
+    "Queued delivery — approve restores for offline players; items are delivered automatically when they log in",
+    "In-game staff GUI — paginated snapshot browser with filter and search support",
+    "Audit log with webhook export — every action (request, approve, deny, cancel, reopen, unlock) is logged",
+    "Dual database support — SQLite for single-server setups, MySQL for networks",
+    "Configurable retention policies — auto-purge old snapshots and audit entries",
+    "Combat logout protection — optionally capture snapshots when players disconnect during combat",
+    "Multi-language support — messages configurable via lang files",
+    "Backup before restore — optionally creates a safety backup of current inventory before applying a rollback",
+    "Automatic request timeout — pending requests expire after a configurable window to prevent player lockout"
+  ],
+  "publicApiSurface": [
+    "/invrollback <player> [page] [filter] [query] — open snapshot browser GUI",
+    "/invrollback cancel <deathId> <reason> — cancel a pending request",
+    "/invrollback reopen <deathId> — reopen a denied request",
+    "/invrollback unlock <deathId> — unlock a restored death entry",
+    "/invrollback info <player> — show snapshot statistics for a player",
+    "/invrollback history <player> [filter] [query] — list recent snapshots in chat",
+    "/invrollback logs <player> — show recent audit log entries",
+    "/invrollback export <yml|json> [player] — export audit log to file",
+    "/invrollback reload — reload config and restart Discord bot",
+    "rollback.view — permission to open the snapshot browser GUI",
+    "rollback.request — permission for players to submit restore requests",
+    "rollback.info — permission to view stats and history",
+    "rollback.logs — permission to view audit logs",
+    "rollback.manage.cancel — permission to cancel requests",
+    "rollback.manage.reopen — permission to reopen denied requests",
+    "rollback.manage.unlock — permission to unlock restored entries",
+    "rollback.export — permission to export audit logs",
+    "rollback.reload — permission to reload the plugin",
+    "rollback.admin.all — grants all permissions",
+    "RollbackType: FULL, INVENTORY, ARMOR, OFFHAND, XP, ENDER_CHEST",
+    "CustomRestoreType: SWORD, PICKAXE, AXE, SHOVEL, HELMET, CHESTPLATE, LEGGINGS, BOOTS, OFFHAND",
+    "SnapshotState: OPEN, PENDING, QUEUED, RESTORED, DENIED",
+    "SnapshotFilter: all, open, pending, queued, restored, denied",
+    "Config: database.type (SQLITE|MYSQL), discord.bot-token, discord.log-channel-id, discord.admin-role-ids, discord.require-admin-role, discord.audit-webhook-url, storage.max-snapshots-per-player, storage.max-snapshot-age-days, requests.timeout-minutes, requests.max-pending-per-player, protections.create-backup-before-restore, protections.save-combat-logout-snapshots, server.name, lang"
+  ]
+}

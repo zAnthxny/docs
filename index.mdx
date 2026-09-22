@@ -1,20 +1,106 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "NovaRestore: Inventory Rollback with Discord Approval"
+sidebarTitle: "Home"
+description: "NovaRestore automatically saves player inventories on death and lets staff restore them through a Discord approval workflow — no items lost forever."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+NovaRestore is a Paper Minecraft plugin that captures a full snapshot of every player's inventory the moment they die, then routes restore requests through a structured Discord approval workflow. Staff review each request, approve or deny it directly in Discord, and the player's items are returned — all without digging through log files or guessing what was lost.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+## Get Started
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+<CardGroup cols={2}>
+  <Card
+    title="Introduction"
+    icon="book-open"
+    href="/introduction"
+  >
+    Learn what NovaRestore does, how the workflow functions, and which server versions are supported.
+  </Card>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Place the jar, start your server, and verify the plugin is running in under two minutes.
+  </Card>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Configure Discord, assign permissions, and process your first restore request in five minutes.
+  </Card>
+  <Card
+    title="Staff Commands"
+    icon="terminal"
+    href="/staff/commands"
+  >
+    Full reference for every command available to staff members and server operators.
+  </Card>
+</CardGroup>
+
+## Feature Highlights
+
+<CardGroup cols={2}>
+  <Card
+    title="Automatic Death Snapshots"
+    icon="camera"
+    href="/introduction"
+  >
+    Every player death triggers an instant inventory snapshot — armor, hotbar, offhand, and all storage slots — stored in SQLite or MySQL.
+  </Card>
+  <Card
+    title="Discord Approval Workflow"
+    icon="discord"
+    href="/quickstart"
+  >
+    Restore requests appear as rich Discord embeds. Staff approve or deny with a single button click, keeping a full audit trail.
+  </Card>
+  <Card
+    title="Staff GUI Browser"
+    icon="grid-2"
+    href="/staff/commands"
+  >
+    Open an in-game chest GUI to browse a player's entire death history, inspect each snapshot, and submit a restore request with a reason.
+  </Card>
+  <Card
+    title="SQLite & MySQL Support"
+    icon="database"
+    href="/configuration"
+  >
+    Use the bundled SQLite database for single-server setups or connect to MySQL for multi-server or high-traffic environments.
+  </Card>
+  <Card
+    title="Legacy Data Migration"
+    icon="arrows-rotate"
+    href="/installation"
+  >
+    Upgrading from an older InvRollback installation? NovaRestore automatically migrates your existing snapshot data on first boot.
+  </Card>
+  <Card
+    title="Secure Token Handling"
+    icon="lock"
+    href="/quickstart"
+  >
+    The Discord bot token is passed as a JVM argument rather than stored in a config file, keeping sensitive credentials out of version control.
+  </Card>
+</CardGroup>
+
+## Onboarding in Four Steps
+
+Get NovaRestore running on your server right now by following these four steps. Each one links to the corresponding detailed guide.
+
+<Steps>
+  <Step title="Install the Jar">
+    Download the NovaRestore jar and drop it into your server's `plugins/` folder. No additional dependencies are required. See [Installation](/installation) for the full checklist.
+  </Step>
+  <Step title="Configure Discord">
+    Pass your bot token as the JVM argument `-Ddiscord.token=YOUR_BOT_TOKEN` and set `discord.log-channel-id` in `plugins/NovaRestore/config.yml`. See [Quickstart](/quickstart) for the exact syntax.
+  </Step>
+  <Step title="Set Permissions">
+    Grant staff the `rollback.view` permission and players the `rollback.request` permission using your permission plugin of choice.
+  </Step>
+  <Step title="Test the Workflow">
+    Kill a player in creative mode, run `/invrollback <playerName>` to open the snapshot GUI, submit a restore request, and confirm the Discord embed appears in your log channel.
+  </Step>
+</Steps>

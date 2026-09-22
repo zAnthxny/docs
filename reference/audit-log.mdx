@@ -1,0 +1,104 @@
+---
+title: "NovaRestore Audit Log: Tracking Every Action"
+sidebarTitle: "Audit Log"
+description: "Learn how NovaRestore's audit log records every restore action, how to view per-player logs in-game, and how to export the full log as YAML or JSON."
+---
+
+NovaRestore maintains a complete audit trail of every action that touches a death snapshot. From the moment a staff member submits a restore request to the final delivery of items, each step is recorded with a timestamp, the actor responsible, and a descriptive note. This makes it straightforward to investigate disputes, confirm what was restored and when, and demonstrate to players exactly what happened to their request.
+
+<Tip>
+Set `discord.audit-webhook-url` in your configuration to have every audit action posted automatically to a dedicated Discord channel. This gives your moderation team a live, searchable feed of all restore activity without ever needing to export files or run commands.
+</Tip>
+
+## What Is Logged
+
+The audit system records an entry for every significant event in a snapshot's lifecycle:
+
+| Action | Triggered When |
+|---|---|
+| `REQUEST` | A staff member submits a restore request to Discord |
+| `DENY` | A Discord admin denies the request |
+| `CANCEL` | A staff member cancels a pending or queued request in-game |
+| `REOPEN` | A staff member reopens a denied snapshot |
+| `UNLOCK` | A staff member unlocks a restored snapshot to allow re-requesting |
+| `TIMEOUT` | A pending request expires automatically (logged by the system) |
+| `RESTORE_*` | Items are restored immediately (suffixed with the restore type, e.g. `RESTORE_FULL`) |
+| `DELIVER_*` | A queued restore is applied on player login (e.g. `DELIVER_INVENTORY`) |
+| `QUEUE_*` | A restore is approved and queued for offline delivery (e.g. `QUEUE_ARMOR`) |
+
+## Audit Log Entry Fields
+
+Every entry in the audit log contains the following fields:
+
+| Field | Description |
+|---|---|
+| `timestamp` | Unix epoch milliseconds when the action occurred |
+| `action` | The action type string (e.g. `REQUEST`, `DENY`, `RESTORE_FULL`) |
+| `actor` | The username of the staff member who performed the action, or `SYSTEM` for automated events like timeouts |
+| `death_id` | The unique ID of the death snapshot this entry relates to |
+| `state` | The snapshot state at the time the entry was written |
+| `server_name` | The server name as configured in `server.name` |
+| `note` | A human-readable description or reason for the action |
+
+## Viewing Logs In-Game
+
+To see the most recent audit activity for a specific player, use the `logs` subcommand:
+
+```bash title="View audit logs for a player"
+/invrollback logs <player>
+```
+
+This command displays up to **12 entries**, showing the latest action recorded for each distinct death ID. Each entry includes the date, action type, actor, current state, server name, and the most recent note. It is useful for a quick at-a-glance review during a support session.
+
+**Permission required:** `rollback.logs`
+
+## Exporting the Audit Log
+
+For deeper analysis or archiving, you can export the audit log to a file. Exports are saved inside the `exports/` folder within the plugin's data directory.
+
+### Export a Single Player's Log
+
+```bash title="Export one player's audit log as YAML"
+/invrollback export yml <player>
+```
+
+```bash title="Export one player's audit log as JSON"
+/invrollback export json <player>
+```
+
+### Export the Global Log
+
+```bash title="Export the entire audit log as YAML"
+/invrollback export yml
+```
+
+```bash title="Export the entire audit log as JSON"
+/invrollback export json
+```
+
+The export filename includes a timestamp in `yyyyMMdd-HHmmss` format so multiple exports never overwrite each other. Both `yml` and `json` formats include all entry fields.
+
+**Permission required:** `rollback.export`
+
+## Audit Webhook
+
+When `discord.audit-webhook-url` is set to a valid Discord webhook URL, the plugin sends an embed to that channel for every recorded action. The webhook embed includes the player name, actor, death ID, state, server name, location, and note. You can use a separate private channel for this webhook to maintain a real-time audit trail visible only to your senior staff team.
+
+```yaml title="config.yml — audit webhook configuration"
+discord:
+  audit-webhook-url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
+  audit-webhook-username: "NovaRestore Audit"
+  audit-webhook-avatar-url: ""
+```
+
+## Retention Policy
+
+Audit log entries are automatically purged based on the `storage.retention.max-audit-age-days` setting. The default is 90 days. Set it to `0` to disable automatic purging and keep entries indefinitely.
+
+```yaml title="config.yml — audit retention"
+storage:
+  retention:
+    max-audit-age-days: 90
+```
+
+Purging runs at plugin startup and on the scheduled maintenance cycle. A message is logged to the console whenever entries are removed, so you always know when the cleanup ran and how many rows were deleted.

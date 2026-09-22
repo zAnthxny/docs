@@ -1,0 +1,93 @@
+---
+title: "NovaRestore Restore Protections and Safety Settings"
+sidebarTitle: "Protections"
+description: "Configure NovaRestore's safety guards: pre-restore inventory backup, empty-slot requirements, combat logout snapshots, and request timeout behavior."
+---
+
+NovaRestore's `protections` and `requests` sections work together to make the restore process safe and abuse-resistant. The protections keys guard against accidental or destructive restores, while the requests keys control how long pending approvals live, how many can stack up, and what preset reasons staff can choose from when submitting a request through Discord.
+
+## Pre-restore inventory backup
+
+Before NovaRestore overwrites any inventory section with a restored snapshot, it can automatically capture a safety snapshot of whatever the player is currently carrying. This gives you a "last chance" rollback point if a restore is applied to the wrong snapshot or the wrong player.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `protections.create-backup-before-restore` | `true` | When `true`, NovaRestore saves the player's current inventory as a `BACKUP` category snapshot before applying any restore. The backup snapshot is visible in the inspection menu and can be used as the source for a follow-up restore if needed. |
+
+<Tip>
+  Keep this set to `true` on production servers. The storage cost of one extra
+  snapshot per restore operation is negligible, but the ability to undo a bad
+  restore is invaluable.
+</Tip>
+
+## Require empty slots before restore
+
+As an additional safety guard, you can require that the target inventory sections are completely empty before a restore is allowed to proceed.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `protections.require-empty-sections-before-restore` | `false` | When `true`, NovaRestore refuses to apply a restore if the corresponding inventory sections (main inventory, armour, off-hand, ender chest) are not empty. The staff member will see an error in-game and must clear the player's inventory first. |
+
+<Info>
+  This setting is most useful on servers where players sometimes log back in
+  and grab new items between death and the restore being approved. Enabling it
+  prevents those new items from being silently overwritten.
+</Info>
+
+## Combat logout snapshots
+
+Players who disconnect immediately after taking combat damage can sometimes exploit the window before a snapshot is saved. The combat-logout settings capture a snapshot automatically when such a disconnect is detected.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `protections.save-combat-logout-snapshots` | `true` | When `true`, NovaRestore saves a `DEATH` category snapshot (with category reason `COMBAT_LOGOUT`) if the player disconnects while they are still considered "in combat". |
+| `protections.combat-logout-window-seconds` | `15` | How many seconds after the player last took damage they are considered "in combat". If the player disconnects within this window, the combat-logout snapshot is triggered. |
+
+## Request management
+
+The `requests` section controls the lifecycle of pending restore requests — from the moment a staff member submits one to when it is automatically expired or acted upon.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `requests.timeout-minutes` | `1440` | How many minutes a pending request stays open before NovaRestore automatically expires it, returns the snapshot to `OPEN` state, and updates the Discord embed. Set to `0` to disable automatic expiry. See the warning below about the `0` case. |
+| `requests.max-pending-per-player` | `3` | Maximum number of simultaneously pending (or queued) restore requests per player. Once this cap is reached, new requests for that player are rejected until existing ones are resolved. Set to `0` to remove the per-player cap. |
+| `requests.staff-request-cooldown-seconds` | `10` | Seconds a staff member must wait between submitting consecutive requests. This prevents accidental double-submissions from rapid command usage. |
+| `requests.quick-reasons` | `[bug, lag, pvp, error-admin, desync]` | List of preset reason strings displayed in the Discord dropdown when a staff member needs to provide a reason. You can add, remove, or rename entries freely. These appear as selectable options — the staff member can also type a custom reason. |
+
+<Warning>
+  **Unsafe configuration: `timeout-minutes: 0` combined with a positive
+  `max-pending-per-player`.**
+
+  If requests never expire but you impose a per-player cap, a player can be
+  permanently locked out of new requests once they accumulate enough
+  unresolved ones. NovaRestore detects this combination and logs a warning at
+  startup, then internally enforces a 1440-minute (24-hour) effective timeout
+  to prevent permanent lockouts — but you should resolve the configuration
+  conflict explicitly.
+
+  Safe alternatives:
+  - Set `timeout-minutes` to a positive value (e.g. `1440`), **or**
+  - Set `max-pending-per-player` to `0` if you genuinely want no expiry.
+</Warning>
+
+## YAML example
+
+```yaml config.yml
+protections:
+  create-backup-before-restore: true
+  require-empty-sections-before-restore: false
+  save-combat-logout-snapshots: true
+  combat-logout-window-seconds: 15
+
+requests:
+  timeout-minutes: 1440
+  max-pending-per-player: 3
+  staff-request-cooldown-seconds: 10
+  quick-reasons:
+    - "bug"
+    - "lag"
+    - "pvp"
+    - "error-admin"
+    - "desync"
+    - "server-crash"
+```

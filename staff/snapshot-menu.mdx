@@ -1,0 +1,159 @@
+---
+title: "Using the NovaRestore In-Game Snapshot Browser"
+sidebarTitle: "Snapshot Menu"
+description: "A complete guide to the NovaRestore in-game GUI: opening a player's snapshot history, using filters and search, reading snapshot details, and submitting restore requests."
+---
+
+The snapshot browser is NovaRestore's primary in-game interface. It presents a player's entire death history as a paginated inventory GUI — each death appears as a player-head icon packed with metadata. From here you can filter by state, search across any field, and open an individual snapshot for inspection or to submit a restore request to Discord.
+
+## Opening the Snapshot Browser
+
+Run the following command as a staff member with the `rollback.view` permission:
+
+```bash title="Open the snapshot browser"
+/invrollback <player>
+```
+
+Replace `<player>` with the target player's name. The menu loads their snapshot data asynchronously and opens the GUI once the data is ready — there is a brief moment while data is fetched from the database, but the GUI opens automatically without you running the command again.
+
+<Note>
+  This command is player-only. It cannot be run from the server console because it requires an inventory screen to be opened.
+</Note>
+
+---
+
+## GUI Layout
+
+The GUI is a standard 54-slot inventory (6 rows × 9 columns). The top five rows are the **snapshot grid**; the bottom row is the **control bar**.
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│  [snapshot]  [snapshot]  [snapshot]  ...  (up to 45 per page) │
+│                         Rows 1–5                              │
+│                    (slots 0–44)                               │
+├──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┤
+│ prev │filter│search│      │ info │      │short-│      │ next │
+│  ←   │hopper│cmpas │ gray │ book │ gray │paper │ gray │  →   │
+│ [45] │ [46] │ [47] │ [48] │ [49] │ [50] │ [51] │ [52] │ [53] │
+└──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
+```
+
+### Bottom Row Controls
+
+| Slot | Icon | Name | Purpose |
+|---|---|---|---|
+| 45 | Arrow | Previous Page | Navigate to the previous page (only shown when `page > 1`) |
+| 46 | Hopper | Filter | Cycle through snapshot state filters |
+| 47 | Compass | Search | Displays the active search query; click shows the search command |
+| 48 | Gray Glass | — | Decorative filler |
+| 49 | Book | Info Panel | Shows player name, current page / total pages, snapshot counts |
+| 50 | Gray Glass | — | Decorative filler |
+| 51 | Paper | Shortcuts | Quick-reference command hints for logs, stats, and search |
+| 52 | Gray Glass | — | Decorative filler |
+| 53 | Arrow | Next Page | Navigate to the next page (only shown when more pages exist) |
+
+---
+
+## Reading a Snapshot Icon
+
+Each snapshot in the grid is rendered as a **player head** showing the face of the snapshot owner. Hover over any icon to read its lore. The lore always includes the following fields in this order:
+
+| Field | Description |
+|---|---|
+| **Date** | Timestamp of the death (formatted `yyyy-MM-dd HH:mm:ss` in the server's timezone) |
+| **State** | Current lifecycle state: `OPEN`, `PENDING`, `QUEUED`, `RESTORED`, or `DENIED` |
+| **Category** | The type of death (e.g. monster, fall, player, void) |
+| **Server** | The server name from `server.name` in `config.yml` |
+| **Location** | World name and block coordinates of the death |
+| **Reason** | Human-readable death reason (e.g. "Killed by Skeleton", "Fall damage") |
+
+Additional lore lines may appear depending on snapshot state:
+
+- **⚠ Valuable items** — shown if the snapshot contains enchanted or named gear
+- **Queued for: `<type>`** — shown if the snapshot is QUEUED, indicating which restore type was approved
+- **Death ID** — always shown at the bottom in gray; used with `cancel`, `reopen`, and `unlock`
+
+---
+
+## Filtering Snapshots
+
+Click the **Hopper** icon in slot 46 to cycle through the available filters. Each click advances to the next filter in sequence:
+
+```
+ALL → OPEN → PENDING → QUEUED → RESTORED → DENIED → ALL → …
+```
+
+The filter only affects what is displayed; NovaRestore re-renders the page instantly without reloading all data. The info panel (slot 49) updates to show how many snapshots are currently visible under the active filter.
+
+<Tip>
+  Use the **OPEN** filter to instantly surface all unprocessed deaths. This is the fastest way to find snapshots that still need a restore request submitted.
+</Tip>
+
+---
+
+## Searching Snapshots
+
+Search is applied through the command line, not by clicking an in-game button. The compass icon (slot 47) shows you the exact command format to use:
+
+```bash title="Search syntax"
+/invrollback <player> <page> <filter> <query>
+```
+
+The `<query>` is matched against:
+
+- Player name
+- Date string
+- World name
+- Death reason
+- Snapshot state
+
+<Tabs>
+  <Tab title="Examples">
+    ```bash title="Find deaths in the Nether"
+    /invrollback Steve 1 all nether
+    ```
+
+    ```bash title="Find all open deaths from creepers"
+    /invrollback Steve 1 open creeper
+    ```
+
+    ```bash title="Find denied snapshots with lag in the reason"
+    /invrollback Steve 1 denied lag
+    ```
+  </Tab>
+  <Tab title="Combining filter + search">
+    You can combine a specific filter with a search query to narrow results as tightly as you need. For example, to see only PENDING requests for a player where the death was recorded on a specific date:
+
+    ```bash
+    /invrollback Alex 1 pending 2024-07-15
+    ```
+
+    The filter is applied first, then the search query is matched against the remaining snapshots.
+  </Tab>
+</Tabs>
+
+---
+
+## Opening a Snapshot for Inspection
+
+Click on any snapshot head in the grid to open the **Inspection Menu** for that death. From the inspection view you can:
+
+- Review the full inventory contents in detail
+- Submit a restore request (requires `rollback.request` permission), which opens a reason-entry prompt and then sends a Discord embed for staff approval
+
+The inspection menu is read-only for users without `rollback.request`. Staff members with the permission will see an active request button.
+
+---
+
+## Pagination
+
+When a player has more than 45 snapshots matching the current filter and query, the GUI splits across multiple pages.
+
+- **Previous page** (slot 45, left arrow) — appears on pages 2 and beyond
+- **Next page** (slot 53, right arrow) — appears when additional pages exist
+
+The info panel (slot 49) always shows the current page number and total page count so you know where you are. You can also jump directly to any page number using the command:
+
+```bash title="Jump to a specific page"
+/invrollback <player> <page>
+```

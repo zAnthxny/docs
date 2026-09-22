@@ -1,0 +1,82 @@
+---
+title: "NovaRestore Snapshot States Explained"
+sidebarTitle: "Snapshot States"
+description: "Understand the five NovaRestore snapshot states — Open, Pending, Queued, Restored, and Denied — and what transitions are possible between them."
+---
+
+Every death snapshot in NovaRestore has a state that describes exactly where it is in the restore lifecycle. States control what actions are available for a snapshot, whether it counts against a player's pending request limit, and whether it can be requested again. Understanding the state model helps staff manage inventory restores efficiently and helps players know what to expect.
+
+<Tip>
+The snapshot browser GUI has a **filter button** in the bottom row. Use it to quickly switch between views — for example, filter by `pending` to see only snapshots with active Discord requests, or `queued` to check who has approved restores waiting for delivery.
+</Tip>
+
+## The Five Snapshot States
+
+| State | Color | Meaning |
+|---|---|---|
+| **Open** | 🟢 Green | Snapshot saved, no request submitted yet. Fully available. |
+| **Pending** | 🟡 Yellow | A restore request has been sent to Discord and is awaiting staff review. |
+| **Queued** | 🔵 Cyan | Request approved but the player was offline. Items will be delivered on next login. |
+| **Restored** | 🟩 Dark Green | Items successfully restored. Entry is locked — cannot be requested again. |
+| **Denied** | 🔴 Red | Request was denied by staff. Can be reopened with the right permission. |
+
+### Open
+
+`OPEN` is the default state for every newly captured snapshot. It means the death was recorded and the data is intact, but no restore action has been initiated. Staff can open the inspection menu for the snapshot, review the items, and submit a request to Discord. An `OPEN` snapshot does **not** count against the player's pending request limit.
+
+### Pending
+
+`PENDING` means a restore request has been submitted and is live in the Discord channel, waiting for an admin to approve or deny it. A snapshot stays in this state until someone acts on it in Discord, it is cancelled via `/invrollback cancel`, or it times out (controlled by `requests.timeout-minutes` in the config). Pending snapshots **count against** the player's `requests.max-pending-per-player` limit.
+
+### Queued
+
+`QUEUED` is a transitional state that occurs when a Discord admin approves a restore but the target player is offline at that moment. The plugin stores the approved restore type alongside the snapshot and waits. As soon as the player logs in, the items are delivered automatically and the snapshot advances to `RESTORED`.
+
+### Restored
+
+`RESTORED` is the terminal success state. It means items were applied to the player's inventory (or delivered from the queue). Once a snapshot reaches this state it is **locked** — the inspection menu shows it as already restored and the request button is disabled. This prevents the same death from being restored twice.
+
+To allow a second restore on the same death (for example, if only part of the items were returned the first time), a staff member with the `rollback.manage.unlock` permission must run:
+
+```bash title="Unlock a restored snapshot"
+/invrollback unlock <deathId>
+```
+
+This moves the snapshot back to `OPEN` and logs the unlock action in the audit trail.
+
+### Denied
+
+`DENIED` means a Discord admin reviewed the request and rejected it. The player receives a notification in-game if `notifications.notify-target-player` is enabled. A denied snapshot can be **reopened** by a staff member with the `rollback.manage.reopen` permission using:
+
+```bash title="Reopen a denied snapshot"
+/invrollback reopen <deathId>
+```
+
+Reopening a snapshot returns it to `OPEN` so a new request can be submitted.
+
+## State Transition Diagram
+
+The following diagram shows every valid state transition:
+
+```
+[Death occurs]
+      │
+      ▼
+    OPEN ◄──────────────────────────── (unlocked by staff)
+      │                                        ▲
+      │ (request submitted to Discord)         │
+      ▼                                        │
+   PENDING ──── (timed out / cancelled) ──► OPEN
+      │
+      ├─── (denied by staff) ──────────────► DENIED
+      │                                        │
+      │                                        └─ (reopened by staff) ──► OPEN
+      │
+      ├─── (approved, player online) ─────► RESTORED ◄─ (queued delivery applied)
+      │
+      └─── (approved, player offline) ───► QUEUED
+                                              │
+                                              └─ (player logs in) ──────► RESTORED
+```
+
+The only way to exit `RESTORED` is a manual staff unlock. The only way to exit `DENIED` is a staff reopen. Every other transition happens automatically as part of the normal workflow.

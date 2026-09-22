@@ -1,0 +1,142 @@
+---
+title: "Connect NovaRestore to Discord: Bot and Webhook Setup"
+sidebarTitle: "Discord"
+description: "Configure your Discord bot token, approval channel, admin roles, inventory preview thumbnails, and audit webhook for NovaRestore."
+---
+
+NovaRestore sends every restore request to a Discord channel as a rich embed with item thumbnails and action buttons. Staff members approve or deny requests directly in Discord, and the result is relayed back to the game in real time. This page explains how to create a bot, wire it up to NovaRestore, and fine-tune role permissions, thumbnails, and the optional audit webhook.
+
+## Bot token security
+
+Your bot token grants full control over your Discord application. NovaRestore deliberately **does not** read the token from `config.yml` — the `discord.bot-token` key in that file is a documentation placeholder only. Instead, pass the real token as a JVM argument when the server process starts:
+
+```bash server-start.sh
+java -Ddiscord.token=YOUR_BOT_TOKEN_HERE -jar paper.jar
+```
+
+Keeping the token in a startup script or a secrets manager (rather than in a config file on disk) means it cannot accidentally be committed to version control or exposed in a config backup.
+
+<Warning>
+  Changing the JVM argument during a running session has no effect. If you
+  rotate your bot token you must restart the entire server process — a
+  `/invrollback reload` is not sufficient.
+</Warning>
+
+## Creating a Discord bot
+
+<Steps>
+  <Step title="Open the Developer Portal">
+    Navigate to [https://discord.com/developers/applications](https://discord.com/developers/applications) and sign in with the account that owns your server's Discord.
+  </Step>
+  <Step title="Create a new application">
+    Click **New Application**, give it a name (e.g. `NovaRestore`), and confirm. This creates the application that will house your bot user.
+  </Step>
+  <Step title="Add a bot user">
+    In the left sidebar choose **Bot**, then click **Add Bot**. Under **Token** click **Reset Token** to reveal it, and copy it immediately — Discord will not show it again.
+  </Step>
+  <Step title="Set bot permissions">
+    Under **Bot**, enable **MESSAGE CONTENT INTENT** in the Privileged Gateway Intents section. Your bot needs at minimum the **Send Messages**, **Embed Links**, **Read Message History**, and **Use Application Commands** permissions in the target channel.
+  </Step>
+  <Step title="Invite the bot to your server">
+    Go to **OAuth2 → URL Generator**, tick `bot` under Scopes, select the required permissions, and open the generated URL to invite the bot.
+  </Step>
+  <Step title="Copy the token to your startup script">
+    Add `-Ddiscord.token=YOUR_COPIED_TOKEN` to your Paper JVM arguments and restart the server.
+  </Step>
+</Steps>
+
+<Tip>
+  Enable **Developer Mode** in Discord (**User Settings → Advanced → Developer
+  Mode**) to unlock right-click options that let you copy channel IDs, role IDs,
+  and user IDs directly. You will need these for the config keys below.
+</Tip>
+
+## Core channel and role settings
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `discord.log-channel-id` | String | `"123456789012345678"` | ID of the Discord text channel where rollback request embeds are posted. Right-click the channel and choose **Copy Channel ID** (Developer Mode must be enabled). |
+| `discord.require-admin-role` | Boolean | `true` | When `true`, only users who hold at least one of the roles listed in `admin-role-ids` can approve or deny requests. When `false`, any member of the server can interact with the buttons. |
+| `discord.admin-role-ids` | List of strings | *(one placeholder ID)* | Role IDs whose holders are authorised to approve or deny restore requests. Add one entry per role. Right-click the role in Server Settings to copy its ID. |
+
+<Note>
+  `discord.require-admin-role` defaults to `true` in the source code even
+  though the default `config.yml` does not show it explicitly. Leave it at
+  `true` unless you intentionally want all Discord members to be able to act
+  on requests.
+</Note>
+
+## Player head thumbnails
+
+The thumbnail shown in each request embed is fetched from a URL template. You can swap this to any skin-rendering service that accepts a UUID or username.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `discord.thumbnail-url-template` | `https://mc-heads.net/avatar/%uuid%/128` | URL template for the player head image embedded in request messages. Use `%uuid%` for the player's UUID and `%player%` for their name. |
+
+Common alternatives:
+
+```yaml config.yml
+# mc-heads.net (default)
+thumbnail-url-template: "https://mc-heads.net/avatar/%uuid%/128"
+
+# Crafatar
+thumbnail-url-template: "https://crafatar.com/avatars/%uuid%?size=128&overlay"
+
+# Minotar (username-based)
+thumbnail-url-template: "https://minotar.net/helm/%player%/128.png"
+```
+
+## Audit webhook
+
+NovaRestore can post a compact audit entry to a separate Discord channel every time a request is approved, denied, or times out. This keeps the approval channel clean while preserving a permanent staff-action log elsewhere.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `discord.audit-webhook-url` | `""` (disabled) | Full Discord webhook URL for the audit channel. Leave empty to disable audit posting entirely. |
+| `discord.audit-webhook-username` | `"NovaRestore Audit"` | Display name of the webhook message author. |
+| `discord.audit-webhook-avatar-url` | `""` | URL of the avatar image used for audit webhook messages. Leave empty to use the default webhook avatar. |
+
+To create a webhook URL: open your audit channel → **Edit Channel** → **Integrations** → **Webhooks** → **New Webhook** → **Copy Webhook URL**.
+
+## YAML examples
+
+<Tabs>
+  <Tab title="Role-gated setup">
+    Only holders of the listed role IDs can approve or deny requests in Discord.
+
+    ```yaml config.yml
+    discord:
+      log-channel-id: "1234567890123456789"
+
+      require-admin-role: true
+      admin-role-ids:
+        - "9876543210987654321"   # Senior Staff
+        - "1122334455667788990"   # Moderator
+
+      thumbnail-url-template: "https://mc-heads.net/avatar/%uuid%/128"
+
+      audit-webhook-url: "https://discord.com/api/webhooks/111/aaa"
+      audit-webhook-username: "NovaRestore Audit"
+      audit-webhook-avatar-url: ""
+    ```
+  </Tab>
+  <Tab title="Open setup (no role check)">
+    Any Discord member in the channel can act on requests — useful for very
+    small or trusted communities.
+
+    ```yaml config.yml
+    discord:
+      log-channel-id: "1234567890123456789"
+
+      require-admin-role: false
+      admin-role-ids: []
+
+      thumbnail-url-template: "https://crafatar.com/avatars/%uuid%?size=128&overlay"
+
+      audit-webhook-url: ""
+      audit-webhook-username: "NovaRestore Audit"
+      audit-webhook-avatar-url: ""
+    ```
+  </Tab>
+</Tabs>

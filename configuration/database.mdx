@@ -1,0 +1,119 @@
+---
+title: "Configure NovaRestore Database: SQLite and MySQL"
+sidebarTitle: "Database"
+description: "Set up NovaRestore to use SQLite for single-server deployments or MySQL for multi-server networks. Covers all connection, pool, and timeout settings."
+---
+
+NovaRestore persists every death snapshot, restore request, and audit entry to a relational database. Out of the box the plugin uses SQLite, which requires zero external setup — it simply writes a single file inside the plugin folder. When you are running multiple servers that share the same player base, you can switch to MySQL so all nodes read from and write to one central database.
+
+## Choosing a backend
+
+Set `database.type` to either `SQLITE` or `MYSQL`. Both values are case-insensitive.
+
+```yaml config.yml
+database:
+  type: "SQLITE"   # or "MYSQL"
+```
+
+<Note>
+  After changing the database type you must run `/invrollback reload` (or
+  restart the server) for the change to take effect. Existing SQLite data is
+  **not** automatically migrated to MySQL — copy the data manually or use a
+  migration tool if you need to preserve historical snapshots.
+</Note>
+
+## SQLite (default)
+
+SQLite stores everything in one file inside the plugin's data folder. NovaRestore applies WAL journal mode, `synchronous=NORMAL`, and a memory-mapped I/O configuration automatically, so you do not need to tune anything for typical single-server use.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `database.sqlite.file` | `database/invrestore.db` | Path to the database file, relative to `plugins/NovaRestore/`. The parent directory is created automatically if it does not exist. |
+
+## MySQL
+
+Switch to MySQL when you want multiple Paper nodes to share snapshot data, or when you want to delegate persistence to a managed database service.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `database.mysql.host` | String | `127.0.0.1` | Hostname or IP address of your MySQL server. |
+| `database.mysql.port` | Integer | `3306` | TCP port MySQL is listening on. |
+| `database.mysql.database` | String | `invrestore` | Name of the target database (schema). Must exist before the plugin starts. |
+| `database.mysql.username` | String | `root` | Username NovaRestore authenticates as. |
+| `database.mysql.password` | String | `change-me` | Password for the MySQL user. See the warning below. |
+| `database.mysql.parameters` | String | `useSSL=false&characterEncoding=utf8&autoReconnect=true` | Extra JDBC URL parameters appended to the connection string. |
+
+<Warning>
+  The MySQL password is stored in plain text in `config.yml`. Anyone with
+  access to the server filesystem can read it. Use a dedicated database user
+  with the minimum required privileges (`SELECT`, `INSERT`, `UPDATE`, `DELETE`,
+  `CREATE`, `INDEX`, `ALTER`) and restrict that user to the NovaRestore schema
+  only. Rotate the password if the config file is ever exposed.
+</Warning>
+
+## Connection pool (HikariCP)
+
+NovaRestore uses [HikariCP](https://github.com/brettwooldridge/HikariCP) to manage a pool of JDBC connections. These settings apply when `database.type` is `MYSQL`. SQLite enforces a fixed pool of one connection regardless of what you set here.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `database.mysql.pool.maximum-pool-size` | `10` | Maximum number of connections the pool will create. Increase for very high-concurrency networks. |
+| `database.mysql.pool.minimum-idle` | `2` | Minimum number of idle connections kept ready. |
+| `database.mysql.pool.connection-timeout-ms` | `10000` | Milliseconds to wait for a connection from the pool before throwing a timeout error. |
+| `database.mysql.pool.maximum-lifetime-ms` | `1800000` | Maximum lifetime of a connection in the pool (30 minutes). Connections are retired before the MySQL server's `wait_timeout` closes them. |
+| `database.mysql.pool.keepalive-time-ms` | `0` | Interval in milliseconds at which idle connections are tested with a keepalive query. Set to `0` to disable. |
+
+## Shared settings
+
+These keys apply regardless of which backend you choose.
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `database.table-prefix` | `invrestore_` | Prefix prepended to every table name. Change this if you share one database schema across multiple plugin instances. Blank values fall back to the default. |
+| `database.operation-timeout-seconds` | `15` | How long (in seconds) an asynchronous database operation is allowed to run before it is cancelled with a timeout error. The effective minimum is `5` — any lower value is silently raised to `5`. |
+
+## YAML examples
+
+<Tabs>
+  <Tab title="SQLite">
+    ```yaml config.yml
+    database:
+      type: "SQLITE"
+      operation-timeout-seconds: 15
+      table-prefix: "invrestore_"
+
+      sqlite:
+        file: "database/invrestore.db"
+    ```
+  </Tab>
+  <Tab title="MySQL">
+    ```yaml config.yml
+    database:
+      type: "MYSQL"
+      operation-timeout-seconds: 15
+      table-prefix: "invrestore_"
+
+      mysql:
+        host: "db.example.com"
+        port: 3306
+        database: "invrestore"
+        username: "invrestore_user"
+        password: "str0ngP@ssword!"
+        parameters: "useSSL=true&characterEncoding=utf8&autoReconnect=true"
+
+        pool:
+          maximum-pool-size: 10
+          minimum-idle: 2
+          connection-timeout-ms: 10000
+          maximum-lifetime-ms: 1800000
+          keepalive-time-ms: 60000
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  If you are running a BungeeCord or Velocity network, point every Paper node
+  at the same MySQL host and database name, but make sure each node's
+  `server.name` in `config.yml` is unique. NovaRestore stores the server name
+  alongside every snapshot so you can tell which node captured it.
+</Tip>

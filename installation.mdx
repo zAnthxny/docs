@@ -1,0 +1,129 @@
+---
+title: "Install NovaRestore on Your Paper Server"
+sidebarTitle: "Installation"
+description: "Step-by-step guide to installing NovaRestore on a Paper 1.21.4–1.21.11 server, including requirements, file placement, and first-boot verification."
+---
+
+Installing NovaRestore takes less than two minutes. The plugin ships as a self-contained jar with no external dependencies — drop it into your `plugins/` folder, start the server, and it generates everything it needs automatically. This page walks you through each step and shows you what a clean first boot looks like.
+
+## Requirements
+
+Before you install, confirm your environment meets these requirements.
+
+| Requirement | Minimum version |
+|---|---|
+| Server software | Paper |
+| Minecraft version | 1.21.4 |
+| Maximum tested version | 1.21.11 |
+| Java | Java 21 |
+
+<Warning>
+  NovaRestore will **not** load on Spigot, CraftBukkit, or Fabric. It requires the Paper API for several core features. If your server runs one of those platforms, you must migrate to Paper before proceeding.
+</Warning>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Confirm Your Server Meets Requirements">
+    Check your server version by running the `version` command in the server console. The output should show `Paper` in the version string and a Minecraft version between 1.21.4 and 1.21.11. Confirm your Java version with `java -version` in your system terminal — the output must show version 21 or higher.
+
+    ```text console
+    > version
+    This server is running Paper version 1.21.4-... (MC: 1.21.4)
+    ```
+
+    ```text terminal
+    $ java -version
+    openjdk version "21.0.3" ...
+    ```
+  </Step>
+
+  <Step title="Download and Place the Jar">
+    Download the latest `NovaRestore-x.x.x.jar` from the official release page and place it in the `plugins/` directory of your server. Do not rename the jar — the plugin uses its own filename for logging and update checks.
+
+    Your `plugins/` folder should look like this after placing the file:
+
+    ```text plugins/
+    plugins/
+    ├── NovaRestore-1.0.0.jar
+    └── ... (other plugins)
+    ```
+  </Step>
+
+  <Step title="Start the Server">
+    Start (or restart) your server normally. On first boot, NovaRestore creates its configuration directory and all required files automatically — you do not need to create any folders or files manually.
+
+    After the startup sequence completes, your `plugins/` directory will contain:
+
+    ```text plugins/
+    plugins/
+    ├── NovaRestore-1.0.0.jar
+    └── NovaRestore/
+        ├── config.yml
+        ├── data.db          ← default SQLite database
+        └── messages.yml
+    ```
+
+    <Note>
+      If you intend to use MySQL instead of the default SQLite database, do not populate the database with live data before switching. Set your MySQL credentials in `config.yml` before the server processes any player deaths.
+    </Note>
+  </Step>
+
+  <Step title="Verify Startup in the Console">
+    Scroll through your console output after startup. NovaRestore prints a styled ASCII banner when it loads successfully. Look for a block that resembles the following:
+
+    ```text console
+    [NovaRestore] ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗
+    [NovaRestore] ████╗  ██║██╔═══██╗██║   ██║██╔══██╗
+    [NovaRestore] ██╔██╗ ██║██║   ██║██║   ██║███████║
+    [NovaRestore] ██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║
+    [NovaRestore] ██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║
+    [NovaRestore] ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝
+    [NovaRestore] Plugin NovaRestore activado!
+    [NovaRestore] Version: 1.0.0 | Database: SQLite
+    ```
+
+    If the banner does not appear, check the console for error messages. Common causes include an incompatible Paper version or a Java version below 21.
+
+    <Note>
+      On first boot, NovaRestore registers two commands: `/invrollback` (the primary staff command) and `/invrestore` (an alias). Both are available immediately after the plugin loads — no server restart is required after configuration changes to the command setup.
+    </Note>
+  </Step>
+
+  <Step title="(Optional) Migrate Legacy InvRollback Data">
+    If your server previously ran an older **InvRollback** plugin, NovaRestore automatically detects the legacy data folder on startup and migrates all existing snapshots into its own database.
+
+    Look for the following line in the console to confirm migration ran:
+
+    ```text console
+    [NovaRestore] Legacy InvRollback data detected. Migrating snapshots... done. (N records imported)
+    ```
+
+    Once migration completes, the original `InvRollback/` folder is left untouched so you can verify the data before removing it manually.
+
+    <Info>
+      The automatic migration only runs once. If you restart the server after migration, NovaRestore will not attempt to re-import the legacy data even if the old folder is still present.
+    </Info>
+  </Step>
+</Steps>
+
+## Next Steps
+
+With the plugin installed and verified, your next task is connecting NovaRestore to Discord and assigning the required permissions. Head to the [Quickstart](/quickstart) guide to complete that in five minutes.
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Configure Discord, set staff permissions, and run your first restore end-to-end.
+  </Card>
+  <Card
+    title="Configuration Reference"
+    icon="sliders"
+    href="/configuration"
+  >
+    Browse every available option in `config.yml` with explanations and default values.
+  </Card>
+</CardGroup>

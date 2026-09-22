@@ -1,0 +1,129 @@
+---
+title: "NovaRestore: Inventory Rollback Plugin Overview"
+sidebarTitle: "Introduction"
+description: "Learn what NovaRestore does, how the death snapshot and Discord approval workflow functions, and which Minecraft server versions are supported."
+---
+
+NovaRestore is a Paper Minecraft server plugin that solves one of the most frustrating problems in survival multiplayer: inventory loss. Every time a player dies, NovaRestore silently captures a complete snapshot of everything they were carrying — then gives your staff a structured, auditable path to review and restore those items through Discord. No manual log parsing, no guesswork, and no items lost to bugs, lag, or grief that slips through the cracks.
+
+## What NovaRestore Does
+
+When a player dies, NovaRestore immediately records the full state of their inventory — every armor slot, every hotbar slot, the offhand, and all storage slots — and persists that snapshot to a database. Staff can then open an in-game GUI to browse a player's entire death history, select the relevant snapshot, provide a reason for the restore, and submit the request. That submission posts a rich embed to a designated Discord channel, where any staff member with the appropriate Discord role can approve or deny it with a single button click. On approval, the items are returned to the player automatically.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="Full Inventory Snapshots on Death"
+    icon="camera"
+    href="/quickstart"
+  >
+    Captures armor, hotbar, offhand, and all storage slots the instant a player dies. No configuration is required to enable this — it works out of the box.
+  </Card>
+  <Card
+    title="Discord Approval Workflow"
+    icon="discord"
+    href="/quickstart"
+  >
+    Restore requests are posted to Discord as structured embeds. Staff approve or deny with a button, and every decision is logged for accountability.
+  </Card>
+  <Card
+    title="In-Game Staff GUI"
+    icon="grid-2"
+    href="/staff/commands"
+  >
+    Browse a player's death history inside a chest GUI, inspect individual snapshots, and submit restore requests without leaving the game.
+  </Card>
+  <Card
+    title="Dual Database Support"
+    icon="database"
+    href="/configuration"
+  >
+    Choose between the bundled SQLite database (zero setup, great for most servers) or an external MySQL database for larger networks.
+  </Card>
+  <Card
+    title="Automatic Legacy Migration"
+    icon="arrows-rotate"
+    href="/installation"
+  >
+    Migrating from an older InvRollback installation? NovaRestore detects the legacy data folder on first boot and migrates all existing snapshots automatically.
+  </Card>
+  <Card
+    title="Secure Credential Handling"
+    icon="lock"
+    href="/quickstart"
+  >
+    The Discord bot token is supplied as a JVM startup argument, keeping it out of config files and away from accidental exposure in version control or screenshots.
+  </Card>
+</CardGroup>
+
+## How the Workflow Works
+
+The restore workflow follows a clear, linear path from the moment a player dies to the moment their items are back in their hands.
+
+<Steps>
+  <Step title="Player Dies — Snapshot Saved">
+    The moment a player's health reaches zero, NovaRestore intercepts the death event and records the complete contents of their inventory to the database. This happens synchronously before the inventory is cleared, so nothing is missed even if the death was caused by a plugin or edge-case event.
+  </Step>
+  <Step title="Staff Opens the GUI">
+    A staff member with the `rollback.view` permission runs `/invrollback <playerName>` in-game. A chest GUI opens showing all recorded death snapshots for that player, sorted with the most recent first. Each snapshot displays the death timestamp and location.
+  </Step>
+  <Step title="Staff Sends Request to Discord">
+    The staff member clicks the relevant snapshot and enters a reason (for example, "server lag caused death" or "grief rollback"). NovaRestore posts a formatted embed to the configured Discord log channel containing the player name, snapshot details, item preview, and the stated reason.
+  </Step>
+  <Step title="Staff Approves or Denies in Discord">
+    Any staff member with access to the Discord log channel clicks the **Approve** or **Deny** button on the embed. NovaRestore's Discord bot receives the interaction and records the decision along with the Discord user who made it.
+  </Step>
+  <Step title="Items Restored">
+    On approval, NovaRestore restores the snapshotted inventory to the player. If the player is online, the items are returned immediately. The embed in Discord is updated to reflect the approved status, providing a permanent audit record of the action.
+  </Step>
+</Steps>
+
+<Info>
+  Players can also submit their own restore requests using the `rollback.request` permission, which sends the request directly to Discord for staff review without requiring a staff member to open the GUI first.
+</Info>
+
+## Compatibility
+
+<Warning>
+  NovaRestore requires **Paper** specifically. It will not load on CraftBukkit, Spigot, or Fabric servers. Forks that extend Paper (such as Purpur) are generally compatible but are not officially tested.
+</Warning>
+
+| Requirement | Version |
+|---|---|
+| Server software | Paper |
+| Minecraft version | 1.21.4 – 1.21.11 |
+| Java version | Java 21 or newer |
+
+NovaRestore targets the Paper API and makes use of Paper-specific event hooks that are not available on Spigot or CraftBukkit. Running any Minecraft version outside the 1.21.4–1.21.11 range is unsupported and may produce unexpected behaviour or prevent the plugin from loading.
+
+## Database Options
+
+NovaRestore ships with two supported database backends.
+
+**SQLite (default)** — A file-based database stored at `plugins/NovaRestore/data.db`. No installation or credentials are required. SQLite is the recommended choice for single-server deployments and handles thousands of snapshots without performance concerns.
+
+**MySQL** — An external relational database for operators who run multiple servers from a shared database, need higher concurrent write throughput, or prefer centralised backups. See the [Configuration](/configuration) page for the full MySQL setup reference.
+
+<Note>
+  Switching from SQLite to MySQL after the plugin has been running is possible but requires a manual data migration. Plan your database choice before you go live.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    Place the jar, start your server, and confirm the plugin loaded successfully.
+  </Card>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Configure Discord, set permissions, and run your first restore end-to-end in five minutes.
+  </Card>
+</CardGroup>

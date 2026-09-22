@@ -1,0 +1,71 @@
+---
+title: "How to Request an Inventory Restore After Death"
+sidebarTitle: "Requesting a Restore"
+description: "Step-by-step guide for players to request an inventory restore through NovaRestore, including what information to give staff and what to expect during review."
+---
+
+Losing your items to an unexpected death is frustrating, but NovaRestore gives staff the tools to get them back to you quickly. Because the approval process is staff-reviewed, you do not submit the request yourself through a command — instead, you reach out to a staff member and they handle it from the management side. Here is exactly what to do and what to expect at each stage.
+
+<Tip>
+Contact staff as soon as possible after losing your items. The server's retention policy automatically removes old snapshots after a set number of days. The sooner you report the loss, the more likely your snapshot will still be available.
+</Tip>
+
+## The Restore Process
+
+<Steps>
+  <Step title="Contact a Staff Member">
+    Reach out to a staff member through whatever channel your server uses — in-game chat, a support ticket system, a Discord help channel, or a forum post. The key is to get the attention of someone with the tools to look up your death record.
+  </Step>
+
+  <Step title="Provide Details About Your Death">
+    Give the staff member as much helpful information as you can:
+
+    - Your **username** (especially if you are reporting on behalf of another account)
+    - The **approximate date and time** you died
+    - The **location or world** where it happened
+    - A brief description of **what you lost** (enchanted gear, a totem, collected resources, etc.)
+    - If you know the **reason for your death** (a bug, lag spike, PvP, etc.), mention that too
+
+    The more context you provide, the faster staff can locate the right snapshot in the management menu.
+  </Step>
+
+  <Step title="Staff Opens the Snapshot Menu">
+    Using the `/invrollback` command, the staff member opens the snapshot browser for your account. They will see a list of your recorded death events — each one stamped with the date, world, and state — and locate the one that matches your report.
+  </Step>
+
+  <Step title="Staff Submits the Request to Discord">
+    After opening your specific death snapshot, the staff member clicks the request button in the inspection menu and provides a reason. This sends the restore request to a dedicated Discord channel where it is posted as an embed with full details: your username, death date, location, the items you lost, and the reason for the restore.
+  </Step>
+
+  <Step title="A Discord Admin Reviews and Decides">
+    An authorized Discord admin reviews the request. They can approve it (choosing a full restore or a specific item category), or deny it with a reason. This step is intentionally separate so that restore decisions are reviewed, not instant — protecting both players and the integrity of the server economy.
+  </Step>
+
+  <Step title="Approved and You Are Online — Items Restore Immediately">
+    If the request is approved while you are logged into the server, your items are placed back into your inventory (or the appropriate slot) right away. You will see an in-game notification confirming the restore was applied.
+  </Step>
+
+  <Step title="Approved and You Are Offline — Items Deliver on Next Login">
+    If you are offline when the request is approved, the restore is placed into a queue. As soon as you log back in, the queued items are delivered automatically and you will receive a notification message in chat. You do not need to do anything extra — just log in as normal.
+  </Step>
+</Steps>
+
+## Understanding Request States
+
+Throughout the process your death snapshot moves through different states. You may hear staff refer to these when giving you a status update.
+
+<Note>
+Here is what each state means:
+
+| State | Meaning |
+|---|---|
+| **Open** | Snapshot saved, no request submitted yet. The entry is available and waiting. |
+| **Pending** | A restore request has been sent to Discord and is awaiting staff review. |
+| **Queued** | The request was approved but you were offline. Items will be delivered on your next login. |
+| **Restored** | Items were successfully restored. This entry is now locked. |
+| **Denied** | The request was reviewed and denied by staff. A staff member with the right permission can reopen it. |
+</Note>
+
+<Warning>
+Once a death snapshot reaches the **Restored** state, it is locked and cannot be requested again through the normal workflow. This prevents the same death from being used to restore items twice. If you believe a restore was applied incorrectly or incompletely, ask a staff member — they can unlock the entry using `/invrollback unlock <deathId>` to allow a new request.
+</Warning>

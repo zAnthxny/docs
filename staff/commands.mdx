@@ -1,0 +1,209 @@
+---
+title: "NovaRestore Staff Commands Reference"
+sidebarTitle: "Commands"
+description: "Complete reference for all NovaRestore staff commands: snapshot browser, request management, audit log export, and plugin reload. Includes syntax and examples."
+---
+
+NovaRestore exposes a single command entry point — `/invrollback` (alias `/invrestore`) — with subcommands covering everything from opening the snapshot browser GUI to managing pending requests, exporting audit logs, and reloading the plugin. Every subcommand checks a dedicated permission node before executing, so you can safely grant only what each role needs.
+
+## Command Overview
+
+| Subcommand | Permission Required | Summary |
+|---|---|---|
+| `<player>` | `rollback.view` | Open the snapshot browser GUI |
+| `cancel` | `rollback.manage.cancel` | Cancel a pending request |
+| `reopen` | `rollback.manage.reopen` | Reopen a denied request |
+| `unlock` | `rollback.manage.unlock` | Unlock a restored death entry |
+| `info` / `stats` | `rollback.info` | Show a player's snapshot statistics |
+| `history` | `rollback.info` | List recent snapshots in chat |
+| `logs` | `rollback.logs` | Show the last 12 audit log entries |
+| `export` | `rollback.export` | Export the audit log to a file |
+| `reload` | `rollback.reload` | Reload config and restart the Discord bot |
+
+---
+
+## Snapshot Browser
+
+### Open the GUI
+
+```bash title="Syntax"
+/invrollback <player> [page] [filter] [query]
+/invrestore <player> [page] [filter] [query]
+```
+
+**Permission:** `rollback.view`
+
+Opens the 54-slot snapshot browser GUI for the target player. All arguments after `<player>` are optional:
+
+- `[page]` — which page to open (defaults to `1`)
+- `[filter]` — one of `all`, `open`, `pending`, `queued`, `restored`, `denied` (defaults to `all`)
+- `[query]` — a free-text search string matched against snapshot name, date, world, reason, or state
+
+```bash title="Examples"
+# Open the first page of all snapshots for Steve
+/invrollback Steve
+
+# Open page 2 showing only OPEN snapshots
+/invrollback Steve 2 open
+
+# Search all snapshots for deaths in the nether
+/invrollback Steve 1 all nether
+```
+
+<Tip>
+  Tab completion suggests player names, page numbers, and filter IDs. Use it liberally — especially when looking up a specific player's snapshot history at a glance.
+</Tip>
+
+---
+
+## Request Management
+
+### Cancel a Pending Request
+
+```bash title="Syntax"
+/invrollback cancel <deathId> <reason>
+```
+
+**Permission:** `rollback.manage.cancel`
+
+Cancels a pending (PENDING state) restore request. `<deathId>` is the unique snapshot identifier shown in the GUI lore or audit logs. `<reason>` is required and supports spaces — it is stored in the audit log and sent as a notification to the affected player if they are online.
+
+```bash title="Examples"
+/invrollback cancel a3f2b1 Player reconnected with items intact
+/invrollback cancel d9e4c7 Duplicate request, original already handled
+```
+
+<Note>
+  Tab completion for `cancel` only suggests death IDs that are currently in PENDING state, which prevents accidentally targeting snapshots that have already been resolved.
+</Note>
+
+### Reopen a Denied Request
+
+```bash title="Syntax"
+/invrollback reopen <deathId>
+```
+
+**Permission:** `rollback.manage.reopen`
+
+Transitions a DENIED request back to OPEN state and updates the linked Discord embed so staff can process it again. Tab completion suggests only DENIED death IDs.
+
+```bash title="Example"
+/invrollback reopen d9e4c7
+```
+
+### Unlock a Restored Entry
+
+```bash title="Syntax"
+/invrollback unlock <deathId>
+```
+
+**Permission:** `rollback.manage.unlock`
+
+Restored entries are locked to prevent accidental double-restores. Use this command to unlock a RESTORED death entry if you need to process it again. Tab completion suggests only RESTORED death IDs.
+
+```bash title="Example"
+/invrollback unlock a3f2b1
+```
+
+<Warning>
+  Unlocking a restored entry allows the same snapshot to be requested and approved again. Only do this if you are certain the previous restore was incomplete or incorrect.
+</Warning>
+
+---
+
+## Player Information
+
+### Snapshot Statistics
+
+```bash title="Syntax"
+/invrollback info <player>
+/invrollback stats <player>
+```
+
+**Permission:** `rollback.info`
+
+Prints a summary of a player's snapshot history directly in chat, including total death count, counts per state (open, pending, queued, restored, denied), audited request and restore counts, denial rate percentage, and the date of the most recent death.
+
+```bash title="Examples"
+/invrollback info Steve
+/invrollback stats Steve
+```
+
+### Snapshot History List
+
+```bash title="Syntax"
+/invrollback history <player> [filter] [query]
+```
+
+**Permission:** `rollback.info`
+
+Lists up to 12 recent matching snapshots in chat with their death number, state, date, world, and death reason. Supports the same filter IDs and free-text search query as the GUI command.
+
+```bash title="Examples"
+# All recent snapshots
+/invrollback history Steve
+
+# Only denied snapshots
+/invrollback history Steve denied
+
+# Denied snapshots matching "creeper"
+/invrollback history Steve denied creeper
+```
+
+---
+
+## Audit Logs
+
+### View Recent Audit Entries
+
+```bash title="Syntax"
+/invrollback logs <player>
+```
+
+**Permission:** `rollback.logs`
+
+Outputs the last 12 audit log entries for the specified player in chat. Each entry shows the timestamp, action type, death ID, actor (staff member or SYSTEM), current state, server name, and the associated note.
+
+```bash title="Example"
+/invrollback logs Steve
+```
+
+### Export Audit Log to File
+
+```bash title="Syntax"
+/invrollback export <yml|json> [player]
+```
+
+**Permission:** `rollback.export`
+
+Exports the audit log to a file inside the plugin's data folder. Choose `yml` or `json` as the output format. If `[player]` is provided only that player's entries are exported; omitting it exports the entire global audit log.
+
+```bash title="Examples"
+# Export the full global audit log as JSON
+/invrollback export json
+
+# Export a single player's audit log as YAML
+/invrollback export yml Steve
+```
+
+---
+
+## Plugin Administration
+
+### Reload Configuration
+
+```bash title="Syntax"
+/invrollback reload
+```
+
+**Permission:** `rollback.reload`
+
+Reloads `config.yml` from disk and attempts to restart the Discord bot connection if the token or channel settings have changed. The server does **not** need to restart for most configuration changes to take effect.
+
+```bash title="Example"
+/invrollback reload
+```
+
+<Warning>
+  If the Discord bot token was changed in the JVM system property (`-Ddiscord.token`), a full server restart is required because the token is read at JVM startup. The reload command will log a warning in this case rather than silently using a stale token.
+</Warning>
