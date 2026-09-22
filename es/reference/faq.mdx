@@ -1,118 +1,118 @@
 ---
-title: "FAQ de NovaRestore: Preguntas Frecuentes y Solución de Problemas"
+title: "FAQ de NovaRestore: Preguntas Comunes y Solución de Problemas"
 sidebarTitle: "FAQ"
-description: "Respuestas a las preguntas más frecuentes sobre NovaRestore, cubriendo configuración del bot de Discord, instantáneas faltantes, prevención de restauraciones duplicadas, notificaciones, y advertencias de configuración."
+description: "Respuestas a preguntas comunes de NovaRestore cubriendo configuración de bot de Discord, instantáneas faltantes, prevención de restauración duplicada, notificaciones, y advertencias de configuración."
 ---
 
-Esta página responde a las preguntas más comunes que enfrentan los administradores de servidores y el staff al ejecutar NovaRestore. Si estás lidiando con un comportamiento inesperado, una instantánea faltante, o un problema de configuración, empieza aquí.
+Esta página responde a las preguntas más comunes que los administradores de servidor y el staff encuentran al ejecutar NovaRestore. Si estás lidiando con un comportamiento inesperado, una instantánea faltante, o un problema de configuración, comienza aquí.
 
 <AccordionGroup>
 
   <Accordion title="¿Por qué no se conecta el bot de Discord?">
-    El token del bot de Discord **nunca** debe colocarse en `config.yml`. En su lugar, debe pasarse como argumento de inicio de la JVM para mantenerlo fuera del control de versiones y de archivos de registro accesibles. Revisa lo siguiente en orden:
+    El token del bot de Discord **nunca** debe colocarse en `config.yml`. En cambio, debe pasarse como un argumento de arranque de JVM para mantenerlo fuera del control de versiones y archivos de registro accesibles. Verifica lo siguiente en orden:
 
-    1. **El token está en los argumentos de inicio** — Confirma que tu script de inicio de Paper incluye `-Ddiscord.token=YOUR_BOT_TOKEN` en los argumentos de la JVM, antes del nombre del archivo jar.
-    2. **El token es válido** — Inicia sesión en el [Discord Developer Portal](https://discord.com/developers/applications), abre tu aplicación, ve a la pestaña **Bot**, y regenera el token si no estás seguro.
-    3. **El ID del canal de registro está definido** — `discord.log-channel-id` en `config.yml` debe ser el ID numérico del canal (haz clic derecho en el canal en Discord → Copiar ID de canal con el modo desarrollador activado).
-    4. **El bot tiene permiso en ese canal** — El bot necesita como mínimo **Leer mensajes**, **Enviar mensajes**, y **Insertar enlaces** en el canal configurado, además de **Usar comandos de aplicación** si usas interacciones de comandos de barra.
-    5. **Los IDs de rol de administrador son correctos** — `discord.admin-role-ids` debe listar al menos un ID de rol de Discord válido. Las solicitudes no se pueden aprobar ni denegar si no hay ningún rol autorizado.
+    1. **El token está en los argumentos de arranque** — Confirma que tu script de arranque de Paper incluye `-Ddiscord.token=YOUR_BOT_TOKEN` en los argumentos de JVM, antes del nombre del archivo jar.
+    2. **El token es válido** — Inicia sesión en el [Discord Developer Portal](https://discord.com/developers/applications), abre tu aplicación, navega a la pestaña **Bot**, y regenera el token si no estás seguro.
+    3. **El ID del canal de registro está definido** — `discord.log-channel-id` en `config.yml` debe ser el ID de canal numérico (clic derecho en el canal en Discord → Copy Channel ID con el modo desarrollador habilitado).
+    4. **El bot tiene permiso en ese canal** — El bot necesita como mínimo **Read Messages**, **Send Messages**, y **Embed Links** en el canal configurado, más **Use Application Commands** si usas interacciones de comandos slash.
+    5. **Los IDs de rol de admin son correctos** — `discord.admin-role-ids` debe listar al menos un ID de rol de Discord válido. Las solicitudes no pueden aprobarse o denegarse si ningún rol está autorizado.
 
-    Después de corregir cualquiera de los puntos anteriores, ejecuta `/invrollback reload` dentro del juego o reinicia el servidor. La consola registrará si el bot se conectó exitosamente.
+    Después de corregir cualquiera de lo anterior, ejecuta `/invrollback reload` dentro del juego o reinicia el servidor. La consola registrará si el bot se conectó exitosamente.
   </Accordion>
 
   <Accordion title="Falta la instantánea de muerte de un jugador — ¿por qué?">
     Hay algunas razones por las que una instantánea puede no existir:
 
-    - **La política de retención la eliminó** — Las instantáneas más antiguas que `storage.retention.max-snapshot-age-days` (predeterminado: 45 días) se purgan automáticamente. Si la muerte del jugador fue hace más de esa cantidad de días, los datos ya no existen.
-    - **La muerte ocurrió en un mundo o modo de juego bloqueado** — Si `storage.filters.enabled` es `true` y el mundo o modo de juego está listado en `blocked-worlds` o `blocked-gamemodes`, no se guarda ninguna instantánea para las muertes en esos entornos.
-    - **La instantánea de muerte estaba vacía** — Si `storage.skip-empty-death-snapshots` es `true` (el valor predeterminado), las muertes donde el jugador no tenía ítems, XP, ni nada en su ender chest no se registran. No se perdió nada, así que no se guardó nada.
-    - **El jugador superó el límite de instantáneas por jugador** — `storage.retention.max-snapshots-per-player` (predeterminado: 100) limita cuántas muertes se conservan por jugador. Las más antiguas se eliminan primero al alcanzar el límite.
-    - **El plugin no estaba cargado en el momento de la muerte** — Si el plugin estaba desactivado, recargando, o encontró un error de base de datos en el momento de la muerte, el evento no se capturó.
+    - **La política de retención la eliminó** — Las instantáneas más antiguas que `storage.retention.max-snapshot-age-days` (predeterminado: 45 días) se purgan automáticamente. Si la muerte del jugador fue hace más de esa cantidad de días, los datos se fueron.
+    - **La muerte sucedió en un mundo o modo de juego bloqueado** — Si `storage.filters.enabled` es `true` y el mundo o modo de juego está listado bajo `blocked-worlds` o `blocked-gamemodes`, ninguna instantánea se guarda para muertes en esos entornos.
+    - **La instantánea de muerte estaba vacía** — Si `storage.skip-empty-death-snapshots` es `true` (el predeterminado), las muertes donde el jugador no tenía ítems, sin XP, y nada en su ender chest no se registran. Nada se perdió, así que nada se guardó.
+    - **El jugador excedió el límite de instantáneas por jugador** — `storage.retention.max-snapshots-per-player` (predeterminado: 100) limita cuántas muertes se mantienen por jugador. Las más antiguas se eliminan primero cuando se alcanza el límite.
+    - **El plugin no estaba cargado en el momento de la muerte** — Si el plugin estaba deshabilitado, recargando, o encontró un error de base de datos en el momento de la muerte, el evento no se capturó.
   </Accordion>
 
   <Accordion title="¿Por qué un jugador no puede enviar otra solicitud de restauración?">
-    NovaRestore aplica un límite por jugador de solicitudes activas concurrentes mediante la clave de configuración `requests.max-pending-per-player` (predeterminado: 3). Si un jugador ya tiene esa cantidad de instantáneas en estado `PENDING`, el staff no podrá enviar solicitudes adicionales para ese jugador hasta que se resuelva una de las existentes (aprobada, denegada, cancelada, o expirada).
+    NovaRestore aplica un límite por jugador en solicitudes activas concurrentes vía la clave de configuración `requests.max-pending-per-player` (predeterminado: 3). Si un jugador ya tiene esa cantidad de instantáneas en estado `PENDING`, el staff no podrá enviar solicitudes adicionales para ese jugador hasta que una de las solicitudes existentes se resuelva (aprobada, denegada, cancelada, o expirada).
 
     Para verificar el estado actual de las instantáneas de un jugador, usa:
 
-    ```bash title="Verificar estados de instantáneas de un jugador"
+    ```bash title="Check player snapshot states"
     /invrollback info <player>
     ```
 
     Define `max-pending-per-player` en `0` en `config.yml` para eliminar el límite por completo.
   </Accordion>
 
-  <Accordion title="Una solicitud expiró — ¿qué pasó?">
-    Si `requests.timeout-minutes` está definido con un valor positivo (predeterminado: 1440 minutos / 24 horas), cualquier solicitud de restauración que permanezca en estado `PENDING` por más de esa duración expira automáticamente por el sistema. Cuando ocurre una expiración:
+  <Accordion title="Una solicitud expiró — ¿qué sucedió?">
+    Si `requests.timeout-minutes` está definido a un valor positivo (predeterminado: 1440 minutos / 24 horas), cualquier solicitud de restauración que permanezca en estado `PENDING` por más tiempo que esa duración se expira automáticamente por el sistema. Cuando ocurre un timeout:
 
-    - El estado de la instantánea vuelve a `OPEN`
-    - Se escribe una entrada `TIMEOUT` en el registro de auditoría con el actor `SYSTEM`
+    - El estado de la instantánea se mueve de vuelta a `OPEN`
+    - Una entrada `TIMEOUT` se escribe al registro de auditoría con actor `SYSTEM`
     - El jugador recibe una notificación dentro del juego (si `notifications.notify-target-player` es `true`)
 
-    La instantánea vuelve a estar completamente disponible después de una expiración — el staff puede enviar una nueva solicitud para ella en cualquier momento. Las expiraciones están diseñadas para evitar que la cola de pendientes se llene permanentemente cuando las solicitudes de Discord no se revisan.
+    La instantánea está completamente disponible de nuevo después de un timeout — el staff puede enviar una nueva solicitud para ella en cualquier momento. Los timeouts están diseñados para prevenir que la cola pendiente se llene permanentemente cuando las solicitudes de Discord quedan sin revisar.
 
-    Si quieres que las solicitudes nunca expiren, define `timeout-minutes: 0`. Ten en cuenta: si combinas `timeout-minutes: 0` con un `max-pending-per-player` positivo, el plugin aplica automáticamente un tiempo de espera de seguridad de 1440 minutos para evitar el bloqueo permanente de la cola.
+    Si quieres que las solicitudes nunca expiren, define `timeout-minutes: 0`. Nota: si combinas `timeout-minutes: 0` con un `max-pending-per-player` positivo, el plugin aplica un timeout de seguridad de 1440 minutos automáticamente para prevenir bloqueo permanente de cola.
   </Accordion>
 
   <Accordion title="Un jugador inició sesión y recibió ítems inesperados">
-    Este es un comportamiento esperado — significa que se entregó una **restauración en cola**. Cuando un administrador de Discord aprueba una solicitud de restauración mientras el jugador objetivo está desconectado, la restauración se mantiene en estado `QUEUED` en lugar de descartarse. La próxima vez que el jugador inicia sesión, NovaRestore entrega automáticamente los ítems aprobados y le envía una notificación dentro del juego:
+    Este es un comportamiento esperado — significa que una **restauración en cola** se entregó. Cuando un admin de Discord aprueba una solicitud de restauración mientras el jugador objetivo está desconectado, la restauración se mantiene en un estado `QUEUED` en lugar de descartarse. La próxima vez que el jugador inicia sesión, NovaRestore entrega automáticamente los ítems aprobados y les envía una notificación dentro del juego:
 
     > *"Your approved rollback was restored automatically when you joined."*
 
     Esto no es un bug. Puedes verificar qué se entregó revisando el registro de auditoría:
 
-    ```bash title="Verificar el registro de auditoría de una entrega"
+    ```bash title="Check audit log for delivery"
     /invrollback logs <player>
     ```
 
     Busca una entrada `DELIVER_*`, que mostrará el tipo de restauración y el miembro del staff que la aprobó.
   </Accordion>
 
-  <Accordion title="¿Se puede restaurar la misma muerte dos veces?">
-    No — no sin intervención explícita del staff. Una vez que una instantánea alcanza el estado `RESTORED` queda **bloqueada**. El menú de inspección dentro del juego la muestra como ya restaurada e impide que se envíen nuevas solicitudes para ella. Esto evita restauraciones duplicadas del mismo evento de muerte.
+  <Accordion title="¿Puede la misma muerte restaurarse dos veces?">
+    No — no sin intervención explícita del staff. Una vez que una instantánea alcanza el estado `RESTORED` está **bloqueada**. El menú de inspección dentro del juego la muestra como ya restaurada y previene que se envíen nuevas solicitudes para ella. Esto previene restauraciones duplicadas del mismo evento de muerte.
 
-    Si una restauración quedó incompleta (por ejemplo, solo se devolvió la armadura cuando debía devolverse el contenido completo), un miembro del staff con el permiso `rollback.manage.unlock` puede desbloquear la instantánea:
+    Si una restauración estaba incompleta (por ejemplo, solo armadura se devolvió cuando el contenido completo debería haberse devuelto), un miembro del staff con el permiso `rollback.manage.unlock` puede desbloquear la instantánea:
 
-    ```bash title="Desbloquear una instantánea restaurada"
+    ```bash title="Unlock a restored snapshot"
     /invrollback unlock <deathId>
     ```
 
-    Esto devuelve la instantánea al estado `OPEN` y escribe una entrada `UNLOCK` en el registro de auditoría, así que siempre queda un registro de quién la desbloqueó y cuándo.
+    Esto devuelve la instantánea al estado `OPEN` y escribe una entrada `UNLOCK` al registro de auditoría, así que siempre hay un registro de quién la desbloqueó y cuándo.
   </Accordion>
 
   <Accordion title="¿Cómo restauro ítems a un jugador desconectado?">
-    NovaRestore gestiona a los jugadores desconectados automáticamente mediante el mecanismo de cola. Cuando un administrador de Discord aprueba una solicitud de restauración para un jugador que no está actualmente en línea, el plugin define el estado de la instantánea como `QUEUED` y guarda el tipo de restauración aprobado. La próxima vez que ese jugador se conecte, los ítems se entregan automáticamente.
+    NovaRestore maneja jugadores desconectados automáticamente a través del mecanismo de cola. Cuando un admin de Discord aprueba una solicitud de restauración para un jugador que no está actualmente en línea, el plugin define el estado de la instantánea a `QUEUED` y almacena el tipo de restauración aprobado. La próxima vez que ese jugador se conecta, los ítems se entregan automáticamente.
 
-    No se necesita ningún comando separado para la entrega sin conexión — el flujo de aprobación en Discord se encarga de todo. El staff simplemente aprueba la solicitud normalmente, y el sistema se encarga del resto cuando el jugador inicia sesión.
+    No se necesita ningún comando separado para entrega sin conexión — el flujo de trabajo de aprobación en Discord maneja todo. El staff simplemente aprueba la solicitud normalmente, y el sistema se encarga del resto cuando el jugador inicia sesión.
   </Accordion>
 
-  <Accordion title="La consola muestra advertencias de 'configuración insegura' — ¿qué debo hacer?">
-    NovaRestore registra advertencias al iniciar cuando detecta ajustes de configuración que podrían causar problemas operativos. Los escenarios de configuración insegura más comunes incluyen:
+  <Accordion title="La consola muestra advertencias de 'unsafe configuration' — ¿qué debo hacer?">
+    NovaRestore registra advertencias al arranque cuando detecta ajustes de configuración que podrían llevar a problemas operacionales. Los escenarios de configuración insegura comunes incluyen:
 
-    - **`timeout-minutes: 0` con un `max-pending-per-player` positivo** — Esta combinación podría bloquear permanentemente nuevas solicitudes si las aprobaciones de Discord se retrasan. El plugin resuelve esto aplicando automáticamente un tiempo de espera de seguridad efectivo de 1440 minutos.
-    - **`discord.bot-token` definido con un valor de token literal** — El token solo debe proporcionarse mediante el argumento de la JVM `-Ddiscord.token=...`, no escrito en `config.yml`. Tenerlo en el archivo de configuración es un riesgo de seguridad.
+    - **`timeout-minutes: 0` con un `max-pending-per-player` positivo** — Esta combinación podría bloquear permanentemente nuevas solicitudes si las aprobaciones de Discord se retrasan. El plugin resuelve esto aplicando un timeout de seguridad efectivo de 1440 minutos automáticamente.
+    - **`discord.bot-token` definido a un valor de token literal** — El token solo debe proporcionarse vía el argumento de JVM `-Ddiscord.token=...`, no escrito en `config.yml`. Tenerlo en el archivo de configuración es un riesgo de seguridad.
     - **`log-channel-id` faltante o inválido** — El plugin no puede enrutar solicitudes a Discord sin un ID de canal válido.
 
     Lee el mensaje de advertencia completo — especificará la clave exacta y la corrección recomendada. Después de corregir la configuración, ejecuta `/invrollback reload` o reinicia el servidor.
   </Accordion>
 
-  <Accordion title="¿Cómo migro desde el antiguo plugin InvRollback?">
-    NovaRestore es una reescritura moderna y no importa automáticamente datos de instalaciones heredadas de InvRollback. El esquema de la base de datos, el formato de almacenamiento, y el modelo de instantáneas son lo suficientemente diferentes como para que una migración directa no sea sencilla.
+  <Accordion title="¿Cómo migro desde el plugin InvRollback antiguo?">
+    NovaRestore es una reescritura moderna y no importa automáticamente datos de instalaciones heredadas de InvRollback. El esquema de base de datos, formato de almacenamiento, y modelo de instantáneas son suficientemente diferentes que una migración directa no es sencilla.
 
     El enfoque recomendado es:
 
-    1. Mantén respaldado tu directorio de datos antiguo de InvRollback.
-    2. Instala NovaRestore desde cero — creará sus propias tablas de base de datos (con el prefijo `invrestore_` por defecto).
-    3. Opera ambos en paralelo durante un período de transición si es necesario, aunque no se recomienda ejecutar dos plugins de captura de inventario simultáneamente.
+    1. Mantén tu directorio de datos de InvRollback antiguo respaldado.
+    2. Instala NovaRestore desde cero — creará sus propias tablas de base de datos (con prefijo `invrestore_` por defecto).
+    3. Opera ambos en paralelo durante un período de transición si es necesario, aunque ejecutar dos plugins de captura de inventario simultáneamente no se recomienda.
     4. Para cualquier restauración heredada crítica que deba honrarse, realízala manualmente usando ítems de tu respaldo antes de cambiar por completo.
 
-    Si usas MySQL, ambos plugins pueden apuntar al mismo servidor de base de datos siempre que los prefijos de tabla sean diferentes y no haya conflicto de esquema.
+    Si estás usando MySQL, ambos plugins pueden apuntar al mismo servidor de base de datos siempre que los prefijos de tabla sean diferentes y no haya conflicto de esquema.
   </Accordion>
 
-  <Accordion title="¿NovaRestore admite MySQL?">
-    Sí. NovaRestore admite tanto **SQLite** (el predeterminado, basado en archivos) como **MySQL**. Para cambiar a MySQL, actualiza la sección `database` en `config.yml`:
+  <Accordion title="¿Soporta NovaRestore MySQL?">
+    Sí. NovaRestore soporta tanto **SQLite** (el predeterminado, basado en archivos) como **MySQL**. Para cambiar a MySQL, actualiza la sección `database` en `config.yml`:
 
-    ```yaml title="config.yml — configuración de MySQL"
+    ```yaml title="config.yml — MySQL configuration"
     database:
       type: "MYSQL"
 
@@ -132,9 +132,9 @@ Esta página responde a las preguntas más comunes que enfrentan los administrad
           keepalive-time-ms: 0
     ```
 
-    MySQL se recomienda para redes que ejecutan varios servidores Paper que comparten la misma base de datos, o para servidores que necesitan el rendimiento y las herramientas de un servidor de base de datos dedicado. SQLite es perfectamente adecuado para configuraciones de un solo servidor.
+    MySQL se recomienda para redes ejecutando múltiples servidores de Paper que comparten la misma base de datos, o para servidores que necesitan el rendimiento y las herramientas de un servidor de base de datos dedicado. SQLite es perfectamente adecuado para configuraciones de un solo servidor.
 
-    Después de cambiar el `type`, reinicia el servidor. NovaRestore creará sus tablas en la base de datos MySQL configurada automáticamente al iniciar.
+    Después de cambiar el `type`, reinicia el servidor. NovaRestore creará sus tablas en la base de datos MySQL configurada automáticamente al arranque.
   </Accordion>
 
 </AccordionGroup>

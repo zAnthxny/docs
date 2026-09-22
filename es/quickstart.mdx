@@ -1,10 +1,10 @@
 ---
 title: "Guía rápida: Configura NovaRestore y Ejecuta tu Primera Restauración"
 sidebarTitle: "Guía rápida"
-description: "Configura la integración con Discord de NovaRestore, asigna permisos de staff y procesa tu primera solicitud de restauración de inventario en menos de 5 minutos."
+description: "Configura la integración de Discord de NovaRestore, asigna permisos de staff, y procesa tu primera solicitud de restauración de inventario en menos de 5 minutos."
 ---
 
-Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una vez, ya tienes un `config.yml` funcional y una base de datos SQLite local lista. Esta guía te lleva por la configuración restante — conectar tu bot de Discord, asignar permisos y procesar una solicitud de restauración real — para que tu staff pueda empezar a aprobar restauraciones de inmediato.
+Una vez que NovaRestore está instalado y tu servidor ha arrancado al menos una vez, ya tienes un `config.yml` funcional y una base de datos SQLite local en su lugar. Esta guía te lleva a través de la configuración restante — conectar tu bot de Discord, asignar permisos, y procesar una solicitud de restauración real — para que tu staff pueda empezar a aprobar restauraciones inmediatamente.
 
 <Note>
   Esta guía asume que ya completaste los pasos de [Instalación](/es/installation) y que el banner ASCII de NovaRestore apareció en tu consola sin errores.
@@ -14,51 +14,51 @@ Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una v
 
 <Steps>
   <Step title="Abre config.yml">
-    Navega a `plugins/NovaRestore/` en tu servidor y abre `config.yml` en un editor de texto. Este archivo se generó automáticamente en el primer inicio y contiene todas las opciones configurables de NovaRestore con comentarios explicativos.
+    Navega a `plugins/NovaRestore/` en tu servidor y abre `config.yml` en un editor de texto. Este archivo fue generado automáticamente en el primer arranque y contiene todas las opciones configurables de NovaRestore con comentarios en línea.
 
     ```text filesystem
     plugins/
     └── NovaRestore/
-        ├── config.yml      ← abre este archivo
+        ├── config.yml      ← open this file
         ├── data.db
         └── messages.yml
     ```
   </Step>
 
-  <Step title="Define el nombre de tu servidor">
-    Busca la sección `server` cerca de la parte superior de `config.yml` y define `name` con el nombre que quieres que aparezca en los embeds de Discord. Este valor es puramente cosmético — identifica de qué servidor proviene una solicitud de restauración dentro del canal de Discord.
+  <Step title="Define el nombre de visualización de tu servidor">
+    Encuentra la sección `server` cerca de la parte superior de `config.yml` y define `name` con el nombre de visualización que quieres que aparezca en los embeds de Discord. Este valor es puramente cosmético — identifica de qué servidor vino una solicitud de restauración dentro del canal de Discord.
 
     ```yaml config.yml
     server:
       name: "My Server"
     ```
 
-    Elige un nombre que sea significativo para tu staff. Si ejecutas varios servidores que apuntan al mismo canal de Discord, cada uno debe tener un nombre único aquí para que las solicitudes sean fáciles de distinguir.
+    Elige un nombre que sea significativo para tu staff. Si ejecutas múltiples servidores apuntando al mismo canal de Discord, cada uno debería tener un nombre único aquí para que las solicitudes sean fáciles de distinguir.
   </Step>
 
-  <Step title="Pasa el token del bot de Discord como argumento de la JVM">
-    NovaRestore requiere un token de bot de Discord para publicar embeds y recibir interacciones de botones. En lugar de guardar el token en `config.yml`, lo proporcionas como argumento de inicio de la JVM. Esto mantiene el token fuera de tu archivo de configuración y lejos de una exposición accidental en capturas de pantalla, copias de seguridad o el control de versiones.
+  <Step title="Pasa el token del bot de Discord como un argumento de JVM">
+    NovaRestore requiere un token de bot de Discord para publicar embeds y recibir interacciones de botones. En lugar de almacenar el token en `config.yml`, lo proporcionas como un argumento de arranque de JVM. Esto mantiene el token fuera de tu archivo de configuración y lejos de la exposición accidental en capturas de pantalla, copias de seguridad, o control de versiones.
 
-    Agrega el siguiente argumento a tu comando de inicio del servidor:
+    Agrega el siguiente argumento a tu comando de arranque del servidor:
 
     ```bash startup-command.sh
     java -Ddiscord.token=YOUR_BOT_TOKEN -jar paper-1.21.4.jar nogui
     ```
 
-    Reemplaza `YOUR_BOT_TOKEN` con el token real de tu aplicación en el Discord Developer Portal. Si usas un script de inicio o un panel de gestión de servidor, agrega la bandera `-D` en el mismo lugar que tus otros argumentos de JVM (antes de `-jar`).
+    Reemplaza `YOUR_BOT_TOKEN` con el token real de tu aplicación en el Discord Developer Portal. Si usas un script de arranque o un panel de gestión de servidor, agrega la bandera `-D` en el mismo lugar que tus otros argumentos de JVM (antes de `-jar`).
 
     <Tip>
-      Guarda el token de tu bot en un gestor de secretos seguro o una variable de entorno en lugar de escribirlo directamente en un script de shell que podría subirse a un repositorio. Muchos paneles de despliegue permiten inyectar argumentos de JVM desde variables de entorno — revisa la documentación de tu proveedor para la sintaxis exacta.
+      Almacena el token de tu bot en un gestor de secretos seguro o variable de entorno en lugar de escribirlo directamente en un script de shell que podría ser subido a un repositorio. Muchos paneles de despliegue soportan inyectar argumentos de JVM desde variables de entorno — revisa la documentación de tu proveedor de alojamiento para la sintaxis exacta.
     </Tip>
 
     El bot necesita los siguientes permisos de Discord para funcionar:
-    - **Enviar mensajes** e **Insertar enlaces** en el canal de registro
-    - **Leer historial de mensajes** en el canal de registro
+    - **Send Messages** y **Embed Links** en el canal de registro
+    - **Read Message History** en el canal de registro
     - Los alcances OAuth2 **bot** y **applications.commands** al generar la URL de invitación
   </Step>
 
   <Step title="Define el ID del canal de registro de Discord">
-    De vuelta en `config.yml`, define `discord.log-channel-id` con el ID del canal de Discord donde deben aparecer los embeds de solicitudes de restauración. Para copiar el ID de un canal en Discord, activa el Modo Desarrollador en tu configuración de Discord, luego haz clic derecho en el canal y selecciona **Copiar ID de canal**.
+    De vuelta en `config.yml`, define `discord.log-channel-id` con el ID del canal de Discord donde los embeds de solicitud de restauración deberían aparecer. Para copiar un ID de canal en Discord, activa el Modo Desarrollador en tu configuración de Discord, luego haz clic derecho en el canal y selecciona **Copy Channel ID**.
 
     ```yaml config.yml
     server:
@@ -68,10 +68,10 @@ Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una v
       log-channel-id: "123456789012345678"
     ```
 
-    Guarda el archivo. Este cambio surte efecto en el próximo reinicio del servidor (o después de ejecutar `/invrollback reload` para aplicar cambios sin un reinicio completo).
+    Guarda el archivo. Este cambio toma efecto en el próximo reinicio del servidor (o después de ejecutar `/invrollback reload` para aplicar cambios sin un reinicio completo).
 
     <Warning>
-      El ID del canal debe estar entre comillas en YAML. Las cadenas numéricas sin comillas de más de 15 dígitos pueden interpretarse como un número de punto flotante y truncarse, lo que provocará que las llamadas a la API de Discord fallen silenciosamente.
+      El ID del canal debe estar envuelto en comillas en YAML. Las cadenas numéricas sin comillas más largas de 15 dígitos pueden analizarse como un número de punto flotante y truncarse, lo cual causará que las llamadas a la API de Discord fallen silenciosamente.
     </Warning>
   </Step>
 
@@ -81,15 +81,15 @@ Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una v
     | Permiso | Quién lo necesita | Qué permite |
     |---|---|---|
     | `rollback.view` | Miembros del staff | Abrir la GUI de instantáneas de muerte dentro del juego y enviar solicitudes de restauración |
-    | `rollback.request` | Jugadores | Enviar su propia solicitud de restauración desde la pantalla de muerte sin intervención del staff |
+    | `rollback.request` | Jugadores | Enviar su propia solicitud de restauración desde la pantalla de muerte sin involucramiento del staff |
 
-    **Ejemplos con LuckPerms:**
+    **Ejemplos de LuckPerms:**
 
     ```text luckperms-commands
-    # Otorga a un grupo de staff la capacidad de abrir y usar la GUI de restauración
+    # Grant a staff group the ability to open and use the restore GUI
     /lp group staff permission set rollback.view true
 
-    # Otorga a todos los jugadores la capacidad de solicitar su propia restauración
+    # Grant all players the ability to request their own restore
     /lp group default permission set rollback.request true
     ```
 
@@ -97,7 +97,7 @@ Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una v
   </Step>
 
   <Step title="Prueba: dispara una instantánea de muerte">
-    Con los permisos en su lugar, provoca una muerte de prueba para crear una instantánea con la que trabajar. La forma más sencilla es cambiar una cuenta de prueba (o la tuya propia) a modo creativo, quitarle la armadura y causar suficiente daño para matarla en modo supervivencia — o simplemente usar `/kill <playerName>` en la consola.
+    Con los permisos en su lugar, dispara una muerte de prueba para crear una instantánea con la que trabajar. El enfoque más fácil es cambiar una cuenta de prueba (o tu propia cuenta) a modo creativo, quitarle su armadura, e infligir suficiente daño para matarla en modo supervivencia — o simplemente usar `/kill <playerName>` en la consola.
 
     ```text console-command
     /kill TestPlayer
@@ -111,32 +111,32 @@ Una vez que NovaRestore está instalado y tu servidor ha iniciado al menos una v
   </Step>
 
   <Step title="Abre la GUI y envía una solicitud de restauración">
-    Ahora abre la GUI de restauración de staff ejecutando el siguiente comando como operador o como jugador con `rollback.view`:
+    Ahora abre la GUI de restauración de staff ejecutando el siguiente comando como un operador o un jugador con `rollback.view`:
 
     ```text in-game-command
     /invrollback TestPlayer
     ```
 
-    Se abre una GUI de cofre mostrando todas las instantáneas de muerte registradas para `TestPlayer`, ordenadas de más reciente a más antigua. Haz clic en la instantánea que acabas de crear. Se te pedirá introducir un motivo para la restauración — escribe algo como `Testing the workflow` y confirma.
+    Se abre una GUI de cofre mostrando todas las instantáneas de muerte registradas para `TestPlayer`, ordenadas de más reciente a más antigua. Haz clic en la instantánea que acabas de crear. Se te pide ingresar un motivo para la restauración — escribe algo como `Testing the workflow` y confirma.
 
     NovaRestore publica un embed de Discord en tu canal de registro configurado. El embed contiene:
     - El nombre del jugador y la ubicación de la muerte
     - La marca de tiempo de la muerte
     - Una vista previa de los ítems en la instantánea
     - El motivo que ingresaste
-    - Botones de **Aprobar** y **Denegar**
+    - Botones de **Approve** y **Deny**
 
-    Haz clic en **Aprobar** en Discord. El bot de NovaRestore recibe la interacción, restaura el inventario a `TestPlayer` (de inmediato si está en línea), y actualiza el embed para mostrar el estado aprobado con tu nombre de usuario de Discord como revisor.
+    Haz clic en **Approve** en Discord. El bot de NovaRestore recibe la interacción, restaura el inventario a `TestPlayer` (inmediatamente si está en línea), y actualiza el embed para mostrar el estado aprobado con tu nombre de usuario de Discord como el revisor.
 
     <Info>
-      Si el embed de Discord no aparece en unos segundos, verifica que el bot esté en línea en tu servidor de Discord, que el `log-channel-id` sea correcto, y que el bot tenga permiso para enviar mensajes en ese canal.
+      Si el embed de Discord no aparece dentro de unos segundos, verifica dos veces que el bot esté en línea en tu servidor de Discord, que el `log-channel-id` sea correcto, y que el bot tenga permiso para enviar mensajes en ese canal.
     </Info>
   </Step>
 </Steps>
 
 ## Referencia de configuración mínima
 
-El siguiente bloque muestra los valores mínimos de `config.yml` que necesitas definir antes de que la integración con Discord de NovaRestore esté operativa. Todas las demás opciones son opcionales y están documentadas en la página de [Configuración](/es/configuration/overview).
+El siguiente bloque muestra los valores mínimos de `config.yml` que necesitas definir antes de que la integración de Discord de NovaRestore esté operativa. Todas las demás opciones son opcionales y están documentadas en la página de [Configuración](/es/configuration/overview).
 
 ```yaml config.yml
 server:
@@ -147,7 +147,7 @@ discord:
 ```
 
 <Note>
-  Esta configuración mínima depende de que todos los demás ajustes estén en sus valores predeterminados: base de datos SQLite, mensajes en inglés y diseño de GUI estándar. Consulta la [Referencia de configuración](/es/configuration/overview) completa para ver todas las opciones disponibles, incluyendo configuración de MySQL, personalización de mensajes y políticas de retención de instantáneas.
+  Esta configuración mínima depende de que todos los demás ajustes estén en sus valores predeterminados: base de datos SQLite, mensajes en inglés, y diseño de GUI estándar. Consulta la [Referencia de configuración](/es/configuration/overview) completa para cada opción disponible, incluyendo configuración de MySQL, personalización de mensajes, y políticas de retención de instantáneas.
 </Note>
 
 ## Próximos pasos
@@ -158,14 +158,14 @@ discord:
     icon="terminal"
     href="/es/staff/commands"
   >
-    Referencia completa de `/invrollback`, `/invrestore` y todos los comandos de apoyo disponibles para el staff.
+    Referencia completa de `/invrollback`, `/invrestore`, y todos los comandos de soporte disponibles para el staff.
   </Card>
   <Card
     title="Referencia de configuración"
     icon="sliders"
     href="/es/configuration/overview"
   >
-    Cada opción de `config.yml` explicada, incluyendo MySQL, sobrescritura de mensajes y ajustes de retención.
+    Cada opción en `config.yml` explicada, incluyendo MySQL, sobrescrituras de mensajes, y ajustes de retención.
   </Card>
   <Card
     title="Referencia de permisos"
@@ -179,6 +179,6 @@ discord:
     icon="discord"
     href="/es/configuration/discord"
   >
-    Crea y configura la aplicación de Discord, define los intents necesarios y genera una URL de invitación.
+    Crea y configura la aplicación de Discord, define los intents requeridos, y genera una URL de invitación.
   </Card>
 </CardGroup>

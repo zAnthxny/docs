@@ -1,20 +1,20 @@
 ---
-title: "NovaRestore: Navegando el Explorador de Instantáneas Dentro del Juego"
+title: "NovaRestore: Navegando el Navegador de Instantáneas Dentro del Juego"
 sidebarTitle: "Menú de instantáneas"
-description: "Explora el historial de muertes de un jugador en la GUI de NovaRestore, filtra por estado, busca instantáneas, lee los detalles de la muerte, y envía una solicitud de restauración a Discord."
+description: "Navega el historial de muertes de un jugador en la GUI de NovaRestore, filtra por estado, busca instantáneas, lee detalles de muerte, y envía una solicitud de restauración a Discord."
 ---
 
-El explorador de instantáneas es la interfaz principal de NovaRestore dentro del juego. Presenta todo el historial de muertes de un jugador como una GUI de inventario paginada — cada muerte aparece como un icono de cabeza de jugador cargado con metadatos. Desde aquí puedes filtrar por estado, buscar en cualquier campo, y abrir una instantánea individual para inspección o para enviar una solicitud de restauración a Discord.
+El navegador de instantáneas es la interfaz principal dentro del juego de NovaRestore. Presenta todo el historial de muertes de un jugador como una GUI de inventario paginada — cada muerte aparece como un icono de cabeza de jugador empacado con metadatos. Desde aquí puedes filtrar por estado, buscar a través de cualquier campo, y abrir una instantánea individual para inspección o para enviar una solicitud de restauración a Discord.
 
-## Abrir el explorador de instantáneas
+## Abriendo el navegador de instantáneas
 
 Ejecuta el siguiente comando como un miembro del staff con el permiso `rollback.view`:
 
-```bash title="Abrir el explorador de instantáneas"
+```bash title="Open the snapshot browser"
 /invrollback <player>
 ```
 
-Reemplaza `<player>` con el nombre del jugador objetivo. El menú carga sus datos de instantáneas de forma asíncrona y abre la GUI una vez que los datos están listos — hay un breve momento mientras se obtienen los datos de la base de datos, pero la GUI se abre automáticamente sin que tengas que ejecutar el comando de nuevo.
+Reemplaza `<player>` con el nombre del jugador objetivo. El menú carga sus datos de instantáneas asíncronamente y abre la GUI una vez que los datos están listos — hay un momento breve mientras los datos se obtienen de la base de datos, pero la GUI se abre automáticamente sin que tengas que ejecutar el comando de nuevo.
 
 <Note>
   Este comando es solo para jugadores. No se puede ejecutar desde la consola del servidor porque requiere que se abra una pantalla de inventario.
@@ -28,12 +28,12 @@ La GUI es un inventario estándar de 54 espacios (6 filas × 9 columnas). Las pr
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  [snapshot]  [snapshot]  [snapshot]  ...  (hasta 45 por página) │
-│                         Filas 1–5                              │
-│                    (espacios 0–44)                              │
+│  [snapshot]  [snapshot]  [snapshot]  ...  (up to 45 per page) │
+│                         Rows 1–5                              │
+│                    (slots 0–44)                               │
 ├──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┤
-│ ant. │filtro│bùsq. │      │ info │      │atajos│      │ sig. │
-│  ←   │hopper│cmpas │ gris │ book │ gris │paper │ gris │  →   │
+│ prev │filter│search│      │ info │      │short-│      │ next │
+│  ←   │hopper│cmpas │ gray │ book │ gray │paper │ gray │  →   │
 │ [45] │ [46] │ [47] │ [48] │ [49] │ [50] │ [51] │ [52] │ [53] │
 └──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘
 ```
@@ -42,64 +42,64 @@ La GUI es un inventario estándar de 54 espacios (6 filas × 9 columnas). Las pr
 
 | Espacio | Icono | Nombre | Propósito |
 |---|---|---|---|
-| 45 | Flecha | Página anterior | Navega a la página anterior (solo se muestra cuando `page > 1`) |
-| 46 | Hopper | Filtro | Alterna entre los filtros de estado de instantáneas |
-| 47 | Brújula | Búsqueda | Muestra la consulta de búsqueda activa; al hacer clic muestra el comando de búsqueda |
-| 48 | Vidrio gris | — | Relleno decorativo |
-| 49 | Libro | Panel de información | Muestra el nombre del jugador, página actual / total de páginas, conteos de instantáneas |
-| 50 | Vidrio gris | — | Relleno decorativo |
-| 51 | Papel | Atajos | Sugerencias rápidas de comandos para logs, estadísticas y búsqueda |
-| 52 | Vidrio gris | — | Relleno decorativo |
-| 53 | Flecha | Página siguiente | Navega a la página siguiente (solo se muestra cuando existen más páginas) |
+| 45 | Arrow | Previous Page | Navega a la página anterior (solo se muestra cuando `page > 1`) |
+| 46 | Hopper | Filter | Recorre los filtros de estado de instantáneas |
+| 47 | Compass | Search | Muestra la consulta de búsqueda activa; al hacer clic se muestra el comando de búsqueda |
+| 48 | Gray Glass | — | Relleno decorativo |
+| 49 | Book | Info Panel | Muestra el nombre del jugador, página actual / total de páginas, conteos de instantáneas |
+| 50 | Gray Glass | — | Relleno decorativo |
+| 51 | Paper | Shortcuts | Sugerencias de comando de referencia rápida para logs, stats, y búsqueda |
+| 52 | Gray Glass | — | Relleno decorativo |
+| 53 | Arrow | Next Page | Navega a la página siguiente (solo se muestra cuando existen más páginas) |
 
 ---
 
-## Leer un icono de instantánea
+## Leyendo un icono de instantánea
 
-Cada instantánea en la cuadrícula se representa como una **cabeza de jugador** que muestra el rostro del dueño de la instantánea. Pasa el cursor sobre cualquier icono para leer su descripción. La descripción siempre incluye los siguientes campos en este orden:
+Cada instantánea en la cuadrícula se renderiza como una **cabeza de jugador** que muestra el rostro del propietario de la instantánea. Pasa el cursor sobre cualquier icono para leer su lore. El lore siempre incluye los siguientes campos en este orden:
 
 | Campo | Descripción |
 |---|---|
-| **Fecha** | Marca de tiempo de la muerte (con formato `yyyy-MM-dd HH:mm:ss` en la zona horaria del servidor) |
-| **Estado** | Estado actual del ciclo de vida: `OPEN`, `PENDING`, `QUEUED`, `RESTORED`, o `DENIED` |
-| **Categoría** | El tipo de muerte (por ejemplo, monstruo, caída, jugador, vacío) |
-| **Servidor** | El nombre del servidor desde `server.name` en `config.yml` |
-| **Ubicación** | Nombre del mundo y coordenadas de bloque de la muerte |
-| **Motivo** | Motivo de muerte legible para humanos (por ejemplo, "Killed by Skeleton", "Fall damage") |
+| **Date** | Marca de tiempo de la muerte (formateada `yyyy-MM-dd HH:mm:ss` en la zona horaria del servidor) |
+| **State** | Estado actual del ciclo de vida: `OPEN`, `PENDING`, `QUEUED`, `RESTORED`, o `DENIED` |
+| **Category** | El tipo de muerte (por ejemplo, monster, fall, player, void) |
+| **Server** | El nombre del servidor desde `server.name` en `config.yml` |
+| **Location** | Nombre del mundo y coordenadas de bloque de la muerte |
+| **Reason** | Motivo de muerte legible por humanos (por ejemplo, "Killed by Skeleton", "Fall damage") |
 
-Pueden aparecer líneas de descripción adicionales según el estado de la instantánea:
+Líneas de lore adicionales pueden aparecer dependiendo del estado de la instantánea:
 
-- **⚠ Ítems valiosos** — se muestra si la instantánea contiene equipo encantado o con nombre
-- **En cola para: `<tipo>`** — se muestra si la instantánea está QUEUED, indicando qué tipo de restauración fue aprobado
-- **ID de muerte** — siempre se muestra al final en gris; se usa con `cancel`, `reopen` y `unlock`
+- **⚠ Valuable items** — se muestra si la instantánea contiene equipo encantado o nombrado
+- **Queued for: `<type>`** — se muestra si la instantánea está QUEUED, indicando qué tipo de restauración se aprobó
+- **Death ID** — siempre se muestra en la parte inferior en gris; se usa con `cancel`, `reopen`, y `unlock`
 
 ---
 
-## Filtrar instantáneas
+## Filtrando instantáneas
 
-Haz clic en el icono del **Hopper** en el espacio 46 para alternar entre los filtros disponibles. Cada clic avanza al siguiente filtro en secuencia:
+Haz clic en el icono **Hopper** en el espacio 46 para recorrer los filtros disponibles. Cada clic avanza al siguiente filtro en secuencia:
 
 ```
 ALL → OPEN → PENDING → QUEUED → RESTORED → DENIED → ALL → …
 ```
 
-El filtro solo afecta lo que se muestra; NovaRestore vuelve a renderizar la página al instante sin recargar todos los datos. El panel de información (espacio 49) se actualiza para mostrar cuántas instantáneas están visibles actualmente bajo el filtro activo.
+El filtro solo afecta lo que se muestra; NovaRestore vuelve a renderizar la página instantáneamente sin recargar todos los datos. El panel de información (espacio 49) se actualiza para mostrar cuántas instantáneas son visibles actualmente bajo el filtro activo.
 
 <Tip>
-  Usa el filtro **OPEN** para mostrar instantáneamente todas las muertes sin procesar. Esta es la forma más rápida de encontrar instantáneas a las que todavía les falta enviar una solicitud de restauración.
+  Usa el filtro **OPEN** para exponer instantáneamente todas las muertes sin procesar. Esta es la manera más rápida de encontrar instantáneas a las que todavía les falta enviar una solicitud de restauración.
 </Tip>
 
 ---
 
-## Buscar instantáneas
+## Buscando instantáneas
 
-La búsqueda se aplica mediante la línea de comandos, no haciendo clic en un botón dentro del juego. El icono de brújula (espacio 47) te muestra el formato exacto del comando a usar:
+La búsqueda se aplica a través de la línea de comandos, no haciendo clic en un botón dentro del juego. El icono de brújula (espacio 47) te muestra el formato de comando exacto a usar:
 
-```bash title="Sintaxis de búsqueda"
+```bash title="Search syntax"
 /invrollback <player> <page> <filter> <query>
 ```
 
-`<query>` se compara contra:
+El `<query>` se compara contra:
 
 - Nombre del jugador
 - Cadena de fecha
@@ -109,37 +109,37 @@ La búsqueda se aplica mediante la línea de comandos, no haciendo clic en un bo
 
 <Tabs>
   <Tab title="Ejemplos">
-    ```bash title="Encontrar muertes en el Nether"
+    ```bash title="Find deaths in the Nether"
     /invrollback Steve 1 all nether
     ```
 
-    ```bash title="Encontrar todas las muertes abiertas por creepers"
+    ```bash title="Find all open deaths from creepers"
     /invrollback Steve 1 open creeper
     ```
 
-    ```bash title="Encontrar instantáneas denegadas con lag en el motivo"
+    ```bash title="Find denied snapshots with lag in the reason"
     /invrollback Steve 1 denied lag
     ```
   </Tab>
   <Tab title="Combinando filtro + búsqueda">
-    Puedes combinar un filtro específico con una consulta de búsqueda para acotar los resultados tanto como necesites. Por ejemplo, para ver solo las solicitudes PENDING de un jugador donde la muerte se registró en una fecha específica:
+    Puedes combinar un filtro específico con una consulta de búsqueda para reducir los resultados tan ajustadamente como necesites. Por ejemplo, para ver solo solicitudes PENDING para un jugador donde la muerte se registró en una fecha específica:
 
     ```bash
     /invrollback Alex 1 pending 2024-07-15
     ```
 
-    El filtro se aplica primero, y luego la consulta de búsqueda se compara contra las instantáneas restantes.
+    El filtro se aplica primero, luego la consulta de búsqueda se compara contra las instantáneas restantes.
   </Tab>
 </Tabs>
 
 ---
 
-## Abrir una instantánea para inspección
+## Abriendo una instantánea para inspección
 
-Haz clic en cualquier cabeza de instantánea en la cuadrícula para abrir el **Menú de inspección** de esa muerte. Desde la vista de inspección puedes:
+Haz clic en cualquier cabeza de instantánea en la cuadrícula para abrir el **Menú de Inspección** para esa muerte. Desde la vista de inspección puedes:
 
 - Revisar el contenido completo del inventario en detalle
-- Enviar una solicitud de restauración (requiere el permiso `rollback.request`), que abre un mensaje de entrada de motivo y luego envía un embed de Discord para aprobación del staff
+- Enviar una solicitud de restauración (requiere el permiso `rollback.request`), lo cual abre un mensaje de entrada de motivo y luego envía un embed de Discord para aprobación del staff
 
 El menú de inspección es de solo lectura para usuarios sin `rollback.request`. Los miembros del staff con el permiso verán un botón de solicitud activo.
 
@@ -147,13 +147,13 @@ El menú de inspección es de solo lectura para usuarios sin `rollback.request`.
 
 ## Paginación
 
-Cuando un jugador tiene más de 45 instantáneas que coinciden con el filtro y la consulta actuales, la GUI se divide en varias páginas.
+Cuando un jugador tiene más de 45 instantáneas coincidiendo con el filtro y consulta actuales, la GUI se divide a través de múltiples páginas.
 
-- **Página anterior** (espacio 45, flecha izquierda) — aparece en las páginas 2 en adelante
-- **Página siguiente** (espacio 53, flecha derecha) — aparece cuando existen páginas adicionales
+- **Previous page** (espacio 45, flecha izquierda) — aparece en las páginas 2 en adelante
+- **Next page** (espacio 53, flecha derecha) — aparece cuando existen páginas adicionales
 
-El panel de información (espacio 49) siempre muestra el número de página actual y el total de páginas para que sepas dónde estás. También puedes saltar directamente a cualquier número de página usando el comando:
+El panel de información (espacio 49) siempre muestra el número de página actual y el conteo total de páginas para que sepas dónde estás. También puedes saltar directamente a cualquier número de página usando el comando:
 
-```bash title="Saltar a una página específica"
+```bash title="Jump to a specific page"
 /invrollback <player> <page>
 ```

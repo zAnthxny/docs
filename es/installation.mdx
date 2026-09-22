@@ -1,10 +1,10 @@
 ---
-title: "Instalar NovaRestore en tu Servidor Paper de Minecraft"
+title: "Instalando NovaRestore en tu Servidor Paper de Minecraft"
 sidebarTitle: "Instalación"
-description: "Guía paso a paso para instalar NovaRestore en un servidor Paper 1.21.4–1.21.11, incluyendo requisitos, ubicación de archivos y verificación del primer inicio."
+description: "Guía paso a paso para instalar NovaRestore en un servidor Paper 1.21.4–1.21.11, incluyendo requisitos, ubicación de archivos, y verificación del primer arranque."
 ---
 
-Instalar NovaRestore toma menos de dos minutos. El plugin se distribuye como un jar autocontenido sin dependencias externas — colócalo en tu carpeta `plugins/`, inicia el servidor, y genera automáticamente todo lo que necesita. Esta página te guía por cada paso y te muestra cómo se ve un primer inicio limpio.
+Instalar NovaRestore toma menos de dos minutos. El plugin se distribuye como un jar autocontenido sin dependencias externas — colócalo en tu carpeta `plugins/`, inicia el servidor, y genera todo lo que necesita automáticamente. Esta página te guía a través de cada paso y te muestra cómo se ve un primer arranque limpio.
 
 ## Requisitos
 
@@ -18,7 +18,7 @@ Antes de instalar, confirma que tu entorno cumple estos requisitos.
 | Java | Java 21 |
 
 <Warning>
-  NovaRestore **no** cargará en Spigot, CraftBukkit ni Fabric. Requiere la API de Paper para varias funciones principales. Si tu servidor usa una de esas plataformas, debes migrar a Paper antes de continuar.
+  NovaRestore **no** cargará en Spigot, CraftBukkit, o Fabric. Requiere la API de Paper para varias funciones principales. Si tu servidor ejecuta una de esas plataformas, debes migrar a Paper antes de continuar.
 </Warning>
 
 ## Pasos de instalación
@@ -39,38 +39,38 @@ Antes de instalar, confirma que tu entorno cumple estos requisitos.
   </Step>
 
   <Step title="Descarga y coloca el jar">
-    Descarga el `NovaRestore-x.x.x.jar` más reciente desde la página oficial de versiones y colócalo en el directorio `plugins/` de tu servidor. No renombres el jar — el plugin usa su propio nombre de archivo para el registro y la verificación de actualizaciones.
+    Descarga el `NovaRestore-x.x.x.jar` más reciente desde la página oficial de lanzamientos y colócalo en el directorio `plugins/` de tu servidor. No renombres el jar — el plugin usa su propio nombre de archivo para el registro y las verificaciones de actualización.
 
-    Tu carpeta `plugins/` debe verse así después de colocar el archivo:
+    Tu carpeta `plugins/` debería verse así después de colocar el archivo:
 
     ```text plugins/
     plugins/
     ├── NovaRestore-1.0.0.jar
-    └── ... (otros plugins)
+    └── ... (other plugins)
     ```
   </Step>
 
   <Step title="Inicia el servidor">
-    Inicia (o reinicia) tu servidor normalmente. En el primer inicio, NovaRestore crea automáticamente su directorio de configuración y todos los archivos necesarios — no necesitas crear ninguna carpeta o archivo manualmente.
+    Inicia (o reinicia) tu servidor normalmente. En el primer arranque, NovaRestore crea su directorio de configuración y todos los archivos requeridos automáticamente — no necesitas crear ninguna carpeta o archivo manualmente.
 
-    Después de completarse la secuencia de inicio, tu directorio `plugins/` contendrá:
+    Después de que la secuencia de arranque se complete, tu directorio `plugins/` contendrá:
 
     ```text plugins/
     plugins/
     ├── NovaRestore-1.0.0.jar
     └── NovaRestore/
         ├── config.yml
-        ├── data.db          ← base de datos SQLite predeterminada
+        ├── data.db          ← default SQLite database
         └── messages.yml
     ```
 
     <Note>
-      Si planeas usar MySQL en lugar de la base de datos SQLite predeterminada, no cargues la base de datos con datos en vivo antes de cambiar. Configura tus credenciales de MySQL en `config.yml` antes de que el servidor procese cualquier muerte de jugador.
+      Si pretendes usar MySQL en lugar de la base de datos SQLite predeterminada, no pobles la base de datos con datos en vivo antes de cambiar. Define tus credenciales de MySQL en `config.yml` antes de que el servidor procese cualquier muerte de jugador.
     </Note>
   </Step>
 
-  <Step title="Verifica el inicio en la consola">
-    Revisa la salida de tu consola después del inicio. NovaRestore imprime un banner ASCII con estilo cuando se carga correctamente. Busca un bloque similar al siguiente:
+  <Step title="Verifica el arranque en la consola">
+    Desplázate por la salida de tu consola después del arranque. NovaRestore imprime un banner ASCII con estilo cuando carga exitosamente. Busca un bloque que se parezca al siguiente:
 
     ```text console
     [NovaRestore] ==============================================================
@@ -85,15 +85,15 @@ Antes de instalar, confirma que tu entorno cumple estos requisitos.
     [NovaRestore] ==============================================================
     ```
 
-    Si el banner no aparece, revisa la consola en busca de mensajes de error. Las causas comunes incluyen una versión incompatible de Paper o una versión de Java inferior a 21.
+    Si el banner no aparece, revisa la consola en busca de mensajes de error. Las causas comunes incluyen una versión incompatible de Paper o una versión de Java por debajo de 21.
 
     <Note>
-      En el primer inicio, NovaRestore registra dos comandos: `/invrollback` (el comando principal para staff) e `/invrestore` (un alias). Ambos están disponibles inmediatamente después de que el plugin se carga — no se requiere reiniciar el servidor tras cambios de configuración en la configuración de comandos.
+      En el primer arranque, NovaRestore registra dos comandos: `/invrollback` (el comando principal de staff) e `/invrestore` (un alias). Ambos están disponibles inmediatamente después de que el plugin carga — no se requiere reinicio del servidor después de cambios de configuración en la configuración de comandos.
     </Note>
   </Step>
 
   <Step title="(Opcional) Migra datos heredados de InvRollback">
-    Si tu servidor ejecutaba anteriormente un plugin **InvRollback** más antiguo, NovaRestore detecta automáticamente la carpeta de datos heredada al iniciar y migra todas las instantáneas existentes a su propia base de datos.
+    Si tu servidor previamente ejecutó un plugin **InvRollback** más antiguo, NovaRestore detecta automáticamente la carpeta de datos heredada al arrancar y migra todas las instantáneas existentes a su propia base de datos.
 
     Busca la siguiente línea en la consola para confirmar que la migración se ejecutó:
 
@@ -101,7 +101,7 @@ Antes de instalar, confirma que tu entorno cumple estos requisitos.
     [NovaRestore] Legacy InvRollback data detected. Migrating snapshots... done. (N records imported)
     ```
 
-    Una vez completada la migración, la carpeta original `InvRollback/` se deja intacta para que puedas verificar los datos antes de eliminarla manualmente.
+    Una vez que la migración se completa, la carpeta original `InvRollback/` se deja intacta para que puedas verificar los datos antes de eliminarla manualmente.
 
     <Info>
       La migración automática solo se ejecuta una vez. Si reinicias el servidor después de la migración, NovaRestore no intentará reimportar los datos heredados aunque la carpeta antigua siga presente.
@@ -111,7 +111,7 @@ Antes de instalar, confirma que tu entorno cumple estos requisitos.
 
 ## Próximos pasos
 
-Con el plugin instalado y verificado, tu siguiente tarea es conectar NovaRestore a Discord y asignar los permisos necesarios. Ve a la guía de [Guía rápida](/es/quickstart) para completar eso en cinco minutos.
+Con el plugin instalado y verificado, tu siguiente tarea es conectar NovaRestore a Discord y asignar los permisos requeridos. Dirígete a la guía de [Guía rápida](/es/quickstart) para completar eso en cinco minutos.
 
 <CardGroup cols={2}>
   <Card
@@ -119,13 +119,13 @@ Con el plugin instalado y verificado, tu siguiente tarea es conectar NovaRestore
     icon="rocket"
     href="/es/quickstart"
   >
-    Configura Discord, define los permisos de staff y ejecuta tu primera restauración de principio a fin.
+    Configura Discord, define permisos de staff, y ejecuta tu primera restauración de principio a fin.
   </Card>
   <Card
     title="Referencia de configuración"
     icon="sliders"
     href="/es/configuration/overview"
   >
-    Explora todas las opciones disponibles en `config.yml` con explicaciones y valores predeterminados.
+    Explora cada opción disponible en `config.yml` con explicaciones y valores predeterminados.
   </Card>
 </CardGroup>
