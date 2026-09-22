@@ -1,0 +1,131 @@
+---
+title: "Instalar NovaRestore en tu Servidor Paper de Minecraft"
+sidebarTitle: "Instalación"
+description: "Guía paso a paso para instalar NovaRestore en un servidor Paper 1.21.4–1.21.11, incluyendo requisitos, ubicación de archivos y verificación del primer inicio."
+---
+
+Instalar NovaRestore toma menos de dos minutos. El plugin se distribuye como un jar autocontenido sin dependencias externas — colócalo en tu carpeta `plugins/`, inicia el servidor, y genera automáticamente todo lo que necesita. Esta página te guía por cada paso y te muestra cómo se ve un primer inicio limpio.
+
+## Requisitos
+
+Antes de instalar, confirma que tu entorno cumple estos requisitos.
+
+| Requisito | Versión mínima |
+|---|---|
+| Software del servidor | Paper |
+| Versión de Minecraft | 1.21.4 |
+| Versión máxima probada | 1.21.11 |
+| Java | Java 21 |
+
+<Warning>
+  NovaRestore **no** cargará en Spigot, CraftBukkit ni Fabric. Requiere la API de Paper para varias funciones principales. Si tu servidor usa una de esas plataformas, debes migrar a Paper antes de continuar.
+</Warning>
+
+## Pasos de instalación
+
+<Steps>
+  <Step title="Confirma que tu servidor cumple los requisitos">
+    Verifica la versión de tu servidor ejecutando el comando `version` en la consola del servidor. La salida debe mostrar `Paper` en la cadena de versión y una versión de Minecraft entre 1.21.4 y 1.21.11. Confirma tu versión de Java con `java -version` en la terminal de tu sistema — la salida debe mostrar la versión 21 o superior.
+
+    ```text console
+    > version
+    This server is running Paper version 1.21.4-... (MC: 1.21.4)
+    ```
+
+    ```text terminal
+    $ java -version
+    openjdk version "21.0.3" ...
+    ```
+  </Step>
+
+  <Step title="Descarga y coloca el jar">
+    Descarga el `NovaRestore-x.x.x.jar` más reciente desde la página oficial de versiones y colócalo en el directorio `plugins/` de tu servidor. No renombres el jar — el plugin usa su propio nombre de archivo para el registro y la verificación de actualizaciones.
+
+    Tu carpeta `plugins/` debe verse así después de colocar el archivo:
+
+    ```text plugins/
+    plugins/
+    ├── NovaRestore-1.0.0.jar
+    └── ... (otros plugins)
+    ```
+  </Step>
+
+  <Step title="Inicia el servidor">
+    Inicia (o reinicia) tu servidor normalmente. En el primer inicio, NovaRestore crea automáticamente su directorio de configuración y todos los archivos necesarios — no necesitas crear ninguna carpeta o archivo manualmente.
+
+    Después de completarse la secuencia de inicio, tu directorio `plugins/` contendrá:
+
+    ```text plugins/
+    plugins/
+    ├── NovaRestore-1.0.0.jar
+    └── NovaRestore/
+        ├── config.yml
+        ├── data.db          ← base de datos SQLite predeterminada
+        └── messages.yml
+    ```
+
+    <Note>
+      Si planeas usar MySQL en lugar de la base de datos SQLite predeterminada, no cargues la base de datos con datos en vivo antes de cambiar. Configura tus credenciales de MySQL en `config.yml` antes de que el servidor procese cualquier muerte de jugador.
+    </Note>
+  </Step>
+
+  <Step title="Verifica el inicio en la consola">
+    Revisa la salida de tu consola después del inicio. NovaRestore imprime un banner ASCII con estilo cuando se carga correctamente. Busca un bloque similar al siguiente:
+
+    ```text console
+    [NovaRestore] ==============================================================
+    [NovaRestore]   ___              ____       _ _ _                _
+    [NovaRestore]  |_ _|_ ____   __ |  _ \ ___ | | | |__   __ _  ___| | __
+    [NovaRestore]   | || '_ \ \ / / | |_) / _ \| | | '_ \ / _` |/ __| |/ /
+    [NovaRestore]   | || | | \ V /  |  _ < (_) | | | |_) | (_| | (__|   <
+    [NovaRestore]  |___|_| |_|\_/   |_| \_\___/|_|_|_.__/ \__,_|\___|_|\_\
+    [NovaRestore]
+    [NovaRestore]               !Plugin NovaRestore activado!
+    [NovaRestore]             Version: 1.0.0
+    [NovaRestore] ==============================================================
+    ```
+
+    Si el banner no aparece, revisa la consola en busca de mensajes de error. Las causas comunes incluyen una versión incompatible de Paper o una versión de Java inferior a 21.
+
+    <Note>
+      En el primer inicio, NovaRestore registra dos comandos: `/invrollback` (el comando principal para staff) e `/invrestore` (un alias). Ambos están disponibles inmediatamente después de que el plugin se carga — no se requiere reiniciar el servidor tras cambios de configuración en la configuración de comandos.
+    </Note>
+  </Step>
+
+  <Step title="(Opcional) Migra datos heredados de InvRollback">
+    Si tu servidor ejecutaba anteriormente un plugin **InvRollback** más antiguo, NovaRestore detecta automáticamente la carpeta de datos heredada al iniciar y migra todas las instantáneas existentes a su propia base de datos.
+
+    Busca la siguiente línea en la consola para confirmar que la migración se ejecutó:
+
+    ```text console
+    [NovaRestore] Legacy InvRollback data detected. Migrating snapshots... done. (N records imported)
+    ```
+
+    Una vez completada la migración, la carpeta original `InvRollback/` se deja intacta para que puedas verificar los datos antes de eliminarla manualmente.
+
+    <Info>
+      La migración automática solo se ejecuta una vez. Si reinicias el servidor después de la migración, NovaRestore no intentará reimportar los datos heredados aunque la carpeta antigua siga presente.
+    </Info>
+  </Step>
+</Steps>
+
+## Próximos pasos
+
+Con el plugin instalado y verificado, tu siguiente tarea es conectar NovaRestore a Discord y asignar los permisos necesarios. Ve a la guía de [Guía rápida](/es/quickstart) para completar eso en cinco minutos.
+
+<CardGroup cols={2}>
+  <Card
+    title="Guía rápida"
+    icon="rocket"
+    href="/es/quickstart"
+  >
+    Configura Discord, define los permisos de staff y ejecuta tu primera restauración de principio a fin.
+  </Card>
+  <Card
+    title="Referencia de configuración"
+    icon="sliders"
+    href="/es/configuration/overview"
+  >
+    Explora todas las opciones disponibles en `config.yml` con explicaciones y valores predeterminados.
+  </Card>
+</CardGroup>

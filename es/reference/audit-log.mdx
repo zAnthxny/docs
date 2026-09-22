@@ -1,0 +1,108 @@
+---
+title: "Registro de Auditoría de NovaRestore: Acciones, Campos y Exportaciones"
+sidebarTitle: "Registro de auditoría"
+description: "Aprende cómo el registro de auditoría de NovaRestore registra cada acción de restauración, cómo ver los registros por jugador dentro del juego, y cómo exportar el registro completo como YAML o JSON."
+---
+
+NovaRestore mantiene un rastro de auditoría completo de cada acción que afecta a una instantánea de muerte. Desde el momento en que un miembro del staff envía una solicitud de restauración hasta la entrega final de los ítems, cada paso se registra con una marca de tiempo, el actor responsable, y una nota descriptiva. Esto facilita investigar disputas, confirmar qué se restauró y cuándo, y demostrarle a los jugadores exactamente qué pasó con su solicitud.
+
+<Tip>
+Define `discord.audit-webhook-url` en tu configuración para que cada acción de auditoría se publique automáticamente en un canal dedicado de Discord. Esto le da a tu equipo de moderación un feed en vivo y con capacidad de búsqueda de toda la actividad de restauración sin necesidad de exportar archivos ni ejecutar comandos.
+</Tip>
+
+## Qué se registra
+
+El sistema de auditoría registra una entrada por cada evento significativo en el ciclo de vida de una instantánea:
+
+| Acción | Se dispara cuando |
+|---|---|
+| `REQUEST` | Un miembro del staff envía una solicitud de restauración a Discord |
+| `DENY` | Un administrador de Discord deniega la solicitud |
+| `CANCEL` | Un miembro del staff cancela una solicitud pendiente o en cola dentro del juego |
+| `REOPEN` | Un miembro del staff reabre una instantánea denegada |
+| `UNLOCK` | Un miembro del staff desbloquea una instantánea restaurada para permitir una nueva solicitud |
+| `TIMEOUT` | Una solicitud pendiente expira automáticamente (registrado por el sistema) |
+| `RESTORE_*` | Los ítems se restauran de inmediato (con el sufijo del tipo de restauración, por ejemplo, `RESTORE_FULL`) |
+| `DELIVER_*` | Una restauración en cola se aplica al iniciar sesión el jugador (por ejemplo, `DELIVER_INVENTORY`) |
+| `QUEUE_*` | Una restauración se aprueba y se pone en cola para entrega sin conexión (por ejemplo, `QUEUE_ARMOR`) |
+
+## Campos de una entrada del registro de auditoría
+
+Cada entrada en el registro de auditoría contiene los siguientes campos:
+
+| Campo | Descripción |
+|---|---|
+| `timestamp` | Milisegundos de época Unix cuando ocurrió la acción |
+| `action` | La cadena del tipo de acción (por ejemplo, `REQUEST`, `DENY`, `RESTORE_FULL`) |
+| `actor` | El nombre de usuario del miembro del staff que realizó la acción, o `SYSTEM` para eventos automatizados como expiraciones |
+| `player_name` | El nombre de usuario dentro del juego del jugador al que pertenece esta entrada de instantánea |
+| `player_uuid` | El UUID del jugador al que pertenece esta entrada de instantánea |
+| `death_id` | El ID único de la instantánea de muerte a la que se relaciona esta entrada |
+| `snapshot_date` | La fecha y hora con formato en que se registró originalmente la instantánea de muerte |
+| `state` | El estado de la instantánea en el momento en que se escribió la entrada |
+| `location` | El mundo y las coordenadas donde ocurrió la muerte |
+| `server_name` | El nombre del servidor tal como se configuró en `server.name` |
+| `note` | Una descripción legible para humanos o motivo de la acción |
+
+## Ver registros dentro del juego
+
+Para ver la actividad de auditoría más reciente de un jugador específico, usa el subcomando `logs`:
+
+```bash title="Ver registros de auditoría de un jugador"
+/invrollback logs <player>
+```
+
+Este comando muestra hasta **12 entradas**, mostrando la última acción registrada para cada ID de muerte distinto. Cada entrada incluye la fecha, el tipo de acción, el actor, el estado actual, el nombre del servidor, y la nota más reciente. Es útil para una revisión rápida de un vistazo durante una sesión de soporte.
+
+**Permiso requerido:** `rollback.logs`
+
+## Exportar el registro de auditoría
+
+Para un análisis más profundo o para archivar, puedes exportar el registro de auditoría a un archivo. Las exportaciones se guardan dentro de la carpeta `exports/` dentro del directorio de datos del plugin.
+
+### Exportar el registro de un solo jugador
+
+```bash title="Exportar el registro de auditoría de un jugador como YAML"
+/invrollback export yml <player>
+```
+
+```bash title="Exportar el registro de auditoría de un jugador como JSON"
+/invrollback export json <player>
+```
+
+### Exportar el registro global
+
+```bash title="Exportar todo el registro de auditoría como YAML"
+/invrollback export yml
+```
+
+```bash title="Exportar todo el registro de auditoría como JSON"
+/invrollback export json
+```
+
+El nombre del archivo de exportación incluye una marca de tiempo en formato `yyyyMMdd-HHmmss` para que varias exportaciones nunca se sobrescriban entre sí. Tanto `yml` como `json` incluyen todos los campos de las entradas.
+
+**Permiso requerido:** `rollback.export`
+
+## Webhook de auditoría
+
+Cuando `discord.audit-webhook-url` está definido con una URL de webhook de Discord válida, el plugin envía un embed a ese canal por cada acción registrada. El embed del webhook incluye el nombre del jugador, el actor, el ID de muerte, el estado, el nombre del servidor, la ubicación, y la nota. Puedes usar un canal privado separado para este webhook y mantener un rastro de auditoría en tiempo real visible solo para tu equipo de staff senior.
+
+```yaml title="config.yml — configuración del webhook de auditoría"
+discord:
+  audit-webhook-url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
+  audit-webhook-username: "NovaRestore Audit"
+  audit-webhook-avatar-url: ""
+```
+
+## Política de retención
+
+Las entradas del registro de auditoría se purgan automáticamente según el ajuste `storage.retention.max-audit-age-days`. El valor predeterminado es 90 días. Defínelo en `0` para desactivar la purga automática y conservar las entradas indefinidamente.
+
+```yaml title="config.yml — retención de auditoría"
+storage:
+  retention:
+    max-audit-age-days: 90
+```
+
+La purga se ejecuta al iniciar el plugin y en el ciclo de mantenimiento programado. Se registra un mensaje en la consola cada vez que se eliminan entradas, así que siempre sabrás cuándo se ejecutó la limpieza y cuántas filas se eliminaron.

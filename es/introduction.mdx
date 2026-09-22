@@ -1,0 +1,129 @@
+---
+title: "NovaRestore: Descripción General y Funciones del Plugin de Restauración de Inventario"
+sidebarTitle: "Introducción"
+description: "Aprende qué hace NovaRestore, cómo funciona la instantánea de muerte y el flujo de aprobación en Discord, y qué versiones de Minecraft son compatibles."
+---
+
+NovaRestore es un plugin de Paper para servidores de Minecraft que resuelve uno de los problemas más frustrantes del supervivencia multijugador: la pérdida de inventario. Cada vez que un jugador muere, NovaRestore captura silenciosamente una instantánea completa de todo lo que llevaba encima — y luego le da a tu staff un camino estructurado y auditable para revisar y restaurar esos ítems a través de Discord. Sin analizar registros manualmente, sin adivinar, y sin ítems perdidos por bugs, lag o griefing que se cuelan entre las grietas.
+
+## Qué hace NovaRestore
+
+Cuando un jugador muere, NovaRestore registra de inmediato el estado completo de su inventario — cada espacio de armadura, cada espacio del hotbar, la mano secundaria y todos los espacios de almacenamiento — y guarda esa instantánea en una base de datos. El staff puede entonces abrir una GUI dentro del juego para explorar todo el historial de muertes de un jugador, seleccionar la instantánea relevante, indicar un motivo para la restauración y enviar la solicitud. Ese envío publica un embed enriquecido en un canal de Discord designado, donde cualquier miembro del staff con el rol de Discord adecuado puede aprobar o denegar con un solo clic de botón. Al aprobarse, los ítems se devuelven al jugador automáticamente.
+
+## Funciones principales
+
+<CardGroup cols={2}>
+  <Card
+    title="Instantáneas completas del inventario al morir"
+    icon="camera"
+    href="/es/quickstart"
+  >
+    Captura armadura, hotbar, mano secundaria y todos los espacios de almacenamiento en el instante en que un jugador muere. No se requiere configuración para activar esta función — funciona de inmediato.
+  </Card>
+  <Card
+    title="Flujo de aprobación en Discord"
+    icon="discord"
+    href="/es/quickstart"
+  >
+    Las solicitudes de restauración se publican en Discord como embeds estructurados. El staff aprueba o deniega con un botón, y cada decisión queda registrada para rendición de cuentas.
+  </Card>
+  <Card
+    title="GUI de staff dentro del juego"
+    icon="grid-2"
+    href="/es/staff/commands"
+  >
+    Explora el historial de muertes de un jugador dentro de una GUI de cofre, inspecciona instantáneas individuales y envía solicitudes de restauración sin salir del juego.
+  </Card>
+  <Card
+    title="Soporte de doble base de datos"
+    icon="database"
+    href="/es/configuration/overview"
+  >
+    Elige entre la base de datos SQLite incluida (sin configuración, ideal para la mayoría de los servidores) o una base de datos MySQL externa para redes más grandes.
+  </Card>
+  <Card
+    title="Migración automática de datos heredados"
+    icon="arrows-rotate"
+    href="/es/installation"
+  >
+    ¿Migras desde una instalación antigua de InvRollback? NovaRestore detecta la carpeta de datos heredada en el primer inicio y migra automáticamente todas las instantáneas existentes.
+  </Card>
+  <Card
+    title="Manejo seguro de credenciales"
+    icon="lock"
+    href="/es/quickstart"
+  >
+    El token del bot de Discord se proporciona como argumento de inicio de la JVM, manteniéndolo fuera de los archivos de configuración y lejos de una exposición accidental en capturas de pantalla o el control de versiones.
+  </Card>
+</CardGroup>
+
+## Cómo funciona el flujo de trabajo
+
+El flujo de restauración sigue un camino claro y lineal desde el momento en que un jugador muere hasta el momento en que sus ítems vuelven a sus manos.
+
+<Steps>
+  <Step title="El jugador muere — se guarda la instantánea">
+    En el momento en que la salud de un jugador llega a cero, NovaRestore intercepta el evento de muerte y registra el contenido completo de su inventario en la base de datos. Esto ocurre de forma síncrona antes de que el inventario se vacíe, así que no se pierde nada aunque la muerte haya sido causada por un plugin o un caso límite.
+  </Step>
+  <Step title="El staff abre la GUI">
+    Un miembro del staff con el permiso `rollback.view` ejecuta `/invrollback <playerName>` dentro del juego. Se abre una GUI de cofre mostrando todas las instantáneas de muerte registradas para ese jugador, ordenadas de más reciente a más antigua. Cada instantánea muestra la marca de tiempo y la ubicación de la muerte.
+  </Step>
+  <Step title="El staff envía la solicitud a Discord">
+    El miembro del staff hace clic en la instantánea correspondiente e introduce un motivo (por ejemplo, "la muerte fue causada por lag del servidor" o "restauración por grief"). NovaRestore publica un embed con formato en el canal de registro de Discord configurado, que contiene el nombre del jugador, los detalles de la instantánea, una vista previa de los ítems y el motivo indicado.
+  </Step>
+  <Step title="El staff aprueba o deniega en Discord">
+    Cualquier miembro del staff con acceso al canal de registro de Discord puede hacer clic en el botón **Aprobar** o **Denegar** del embed. El bot de Discord de NovaRestore recibe la interacción y registra la decisión junto con el usuario de Discord que la tomó.
+  </Step>
+  <Step title="Los ítems se restauran">
+    Al aprobarse, NovaRestore restaura el inventario capturado al jugador. Si el jugador está en línea, los ítems se devuelven de inmediato. El embed en Discord se actualiza para reflejar el estado aprobado, proporcionando un registro de auditoría permanente de la acción.
+  </Step>
+</Steps>
+
+<Info>
+  Los jugadores también pueden enviar sus propias solicitudes de restauración usando el permiso `rollback.request`, que envía la solicitud directamente a Discord para revisión del staff sin necesidad de que un miembro del staff abra primero la GUI.
+</Info>
+
+## Compatibilidad
+
+<Warning>
+  NovaRestore requiere específicamente **Paper**. No cargará en servidores CraftBukkit, Spigot ni Fabric. Los forks que extienden Paper (como Purpur) generalmente son compatibles, pero no están probados oficialmente.
+</Warning>
+
+| Requisito | Versión |
+|---|---|
+| Software del servidor | Paper |
+| Versión de Minecraft | 1.21.4 – 1.21.11 |
+| Versión de Java | Java 21 o superior |
+
+NovaRestore está dirigido a la API de Paper y utiliza hooks de eventos específicos de Paper que no están disponibles en Spigot ni CraftBukkit. Ejecutar cualquier versión de Minecraft fuera del rango 1.21.4–1.21.11 no es compatible y puede producir un comportamiento inesperado o impedir que el plugin se cargue.
+
+## Opciones de base de datos
+
+NovaRestore se distribuye con dos backends de base de datos compatibles.
+
+**SQLite (predeterminado)** — Una base de datos basada en archivos almacenada en `plugins/NovaRestore/data.db`. No se requiere instalación ni credenciales. SQLite es la opción recomendada para despliegues de un solo servidor y maneja miles de instantáneas sin problemas de rendimiento.
+
+**MySQL** — Una base de datos relacional externa para operadores que ejecutan varios servidores desde una base de datos compartida, necesitan mayor rendimiento de escritura concurrente, o prefieren copias de seguridad centralizadas. Consulta la página de [Configuración](/es/configuration/overview) para la referencia completa de configuración de MySQL.
+
+<Note>
+  Cambiar de SQLite a MySQL después de que el plugin ha estado funcionando es posible, pero requiere una migración manual de datos. Planifica tu elección de base de datos antes de salir a producción.
+</Note>
+
+## Próximos pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Instalación"
+    icon="download"
+    href="/es/installation"
+  >
+    Coloca el jar, inicia tu servidor y confirma que el plugin se cargó correctamente.
+  </Card>
+  <Card
+    title="Guía rápida"
+    icon="rocket"
+    href="/es/quickstart"
+  >
+    Configura Discord, asigna permisos y ejecuta tu primera restauración de principio a fin en cinco minutos.
+  </Card>
+</CardGroup>

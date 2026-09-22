@@ -1,0 +1,85 @@
+---
+title: "Ajustes de Almacenamiento, Retención y Filtros de NovaRestore"
+sidebarTitle: "Almacenamiento"
+description: "Controla cuántas instantáneas guarda NovaRestore por jugador, cuánto tiempo se conservan, y qué mundos o modos de juego quedan excluidos de la captura de instantáneas."
+---
+
+Cada vez que un jugador muere, NovaRestore captura una instantánea de su inventario completo, armadura, espacio de mano secundaria, ender chest y XP actual. Con el tiempo, esas instantáneas se acumulan. La sección `storage` de `config.yml` te permite definir límites estrictos sobre cuántas instantáneas se guardan por jugador, cuánto tiempo sobreviven antes de purgarse automáticamente, y qué muertes no deben capturarse en absoluto (por mundo o modo de juego).
+
+## Retención de instantáneas
+
+La retención se controla mediante tres claves anidadas bajo `storage.retention`. El plugin aplica ambos límites simultáneamente — una instantánea se elimina si se cumple cualquiera de las dos reglas.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `storage.retention.max-snapshots-per-player` | `100` | Número máximo de instantáneas almacenadas por cada jugador. Cuando una nueva instantánea excedería este conteo, primero se eliminan las instantáneas más antiguas de ese jugador. Define `0` para conservar instantáneas ilimitadas (no recomendado para servidores de larga duración). |
+| `storage.retention.max-snapshot-age-days` | `45` | Las instantáneas más antiguas que esta cantidad de días se purgan automáticamente durante el inicio y el mantenimiento periódico. Define `0` para desactivar la purga basada en antigüedad. |
+| `storage.retention.max-audit-age-days` | `90` | Las entradas del registro de auditoría más antiguas que esta cantidad de días se purgan. Define `0` para desactivar por completo la purga de auditoría y conservar todas las entradas indefinidamente. |
+
+<Info>
+  La retención se ejecuta automáticamente al iniciar y luego cada 6 horas (432 000
+  ticks del servidor). No necesitas programar ninguna tarea cron externa.
+</Info>
+
+## Omitir instantáneas vacías
+
+Cuando un jugador muere sin llevar absolutamente nada — sin ítems, sin armadura, y cero XP — guardar una instantánea desperdicia almacenamiento sin aportar ningún dato útil de restauración.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `storage.skip-empty-death-snapshots` | `true` | Cuando es `true`, las muertes donde el jugador no tiene ítems ni XP no producen una instantánea. Las muertes que incluyen al menos un ítem, una pieza de armadura, o cualquier XP siempre se guardan sin importar este ajuste. |
+
+<Note>
+  Un jugador que pierde el contenido de su ender chest al morir **no** se considera
+  "vacío" — los datos del ender chest se capturan en la instantánea y su presencia
+  anula esta lógica de omisión.
+</Note>
+
+## Filtros de mundo y modo de juego
+
+Puedes evitar que NovaRestore guarde instantáneas en mundos específicos o para jugadores en modos de juego específicos. Los filtros están desactivados de forma predeterminada.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `storage.filters.enabled` | `false` | Interruptor maestro del sistema de filtros. Cuando es `false`, las listas `blocked-worlds` y `blocked-gamemodes` se ignoran por completo. |
+| `storage.filters.blocked-worlds` | `[]` | Lista de nombres de mundo (sin distinguir mayúsculas de minúsculas) donde las muertes no deben capturarse en instantáneas. Usa el nombre exacto de la carpeta de mundo de tu servidor. |
+| `storage.filters.blocked-gamemodes` | `[]` | Lista de nombres de modo de juego (sin distinguir mayúsculas de minúsculas) a omitir. Valores válidos: `SURVIVAL`, `CREATIVE`, `ADVENTURE`, `SPECTATOR`. |
+
+<Tip>
+  Para la mayoría de los servidores de supervivencia deberías bloquear como mínimo
+  `CREATIVE` y `SPECTATOR`. Los jugadores en modo creativo tienen ítems prácticamente
+  infinitos, así que sus instantáneas casi nunca son útiles y solo consumen almacenamiento.
+  Las muertes en modo espectador no sueltan ítems, así que capturarlas en instantáneas no tiene sentido.
+
+  ```yaml
+  storage:
+    filters:
+      enabled: true
+      blocked-gamemodes:
+        - "CREATIVE"
+        - "SPECTATOR"
+  ```
+</Tip>
+
+## Ejemplo de bloque de configuración para producción
+
+El siguiente bloque muestra una configuración típica para un servidor de supervivencia de tamaño mediano — retención agresiva para mantener el almacenamiento manejable, omisión de instantáneas vacías activada, y CREATIVE/SPECTATOR excluidos.
+
+```yaml config.yml
+storage:
+  skip-empty-death-snapshots: true
+
+  retention:
+    max-snapshots-per-player: 50
+    max-snapshot-age-days: 30
+    max-audit-age-days: 60
+
+  filters:
+    enabled: true
+    blocked-worlds:
+      - "world_creative"
+      - "minigames"
+    blocked-gamemodes:
+      - "CREATIVE"
+      - "SPECTATOR"
+```

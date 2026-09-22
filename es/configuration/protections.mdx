@@ -1,0 +1,93 @@
+---
+title: "Protecciones de Restauración y Ajustes de Seguridad de NovaRestore"
+sidebarTitle: "Protecciones"
+description: "Configura las protecciones de seguridad de NovaRestore: copia de seguridad previa a la restauración, requisitos de espacios vacíos, instantáneas por desconexión en combate, y comportamiento de tiempo de espera de solicitudes."
+---
+
+Las secciones `protections` y `requests` de NovaRestore trabajan juntas para que el proceso de restauración sea seguro y resistente a abusos. Las claves de protecciones protegen contra restauraciones accidentales o destructivas, mientras que las claves de requests controlan cuánto tiempo viven las aprobaciones pendientes, cuántas pueden acumularse, y qué motivos preestablecidos puede elegir el staff al enviar una solicitud a través de Discord.
+
+## Copia de seguridad de inventario previa a la restauración
+
+Antes de que NovaRestore sobrescriba cualquier sección de inventario con una instantánea restaurada, puede capturar automáticamente una instantánea de seguridad de lo que el jugador lleva actualmente. Esto te da un punto de "última oportunidad" para revertir si una restauración se aplica a la instantánea o al jugador equivocado.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `protections.create-backup-before-restore` | `true` | Cuando es `true`, NovaRestore guarda el inventario actual del jugador como una instantánea de categoría `BACKUP` antes de aplicar cualquier restauración. La instantánea de respaldo es visible en el menú de inspección y puede usarse como origen para una restauración posterior si es necesario. |
+
+<Tip>
+  Mantén esto en `true` en servidores de producción. El costo de almacenamiento de una
+  instantánea extra por cada operación de restauración es insignificante, pero la capacidad
+  de deshacer una mala restauración no tiene precio.
+</Tip>
+
+## Exigir espacios vacíos antes de restaurar
+
+Como protección adicional, puedes exigir que las secciones de inventario objetivo estén completamente vacías antes de que se permita continuar con una restauración.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `protections.require-empty-sections-before-restore` | `false` | Cuando es `true`, NovaRestore se niega a aplicar una restauración si las secciones de inventario correspondientes (inventario principal, armadura, mano secundaria, ender chest) no están vacías. El miembro del staff verá un error dentro del juego y deberá vaciar primero el inventario del jugador. |
+
+<Info>
+  Este ajuste es más útil en servidores donde los jugadores a veces vuelven a
+  conectarse y toman nuevos ítems entre la muerte y la aprobación de la restauración.
+  Activarlo evita que esos nuevos ítems se sobrescriban silenciosamente.
+</Info>
+
+## Instantáneas por desconexión en combate
+
+Los jugadores que se desconectan inmediatamente después de recibir daño en combate a veces pueden aprovechar la ventana antes de que se guarde una instantánea. Los ajustes de desconexión en combate capturan una instantánea automáticamente cuando se detecta una desconexión de este tipo.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `protections.save-combat-logout-snapshots` | `true` | Cuando es `true`, NovaRestore guarda una instantánea de categoría `DEATH` (con motivo de categoría `COMBAT_LOGOUT`) si el jugador se desconecta mientras todavía se le considera "en combate". |
+| `protections.combat-logout-window-seconds` | `15` | Cuántos segundos después de que el jugador recibió daño por última vez se le considera "en combate". Si el jugador se desconecta dentro de esta ventana, se dispara la instantánea de desconexión en combate. |
+
+## Gestión de solicitudes
+
+La sección `requests` controla el ciclo de vida de las solicitudes de restauración pendientes — desde el momento en que un miembro del staff envía una hasta que expira automáticamente o se actúa sobre ella.
+
+| Clave | Predeterminado | Descripción |
+|-----|---------|-------------|
+| `requests.timeout-minutes` | `1440` | Cuántos minutos permanece abierta una solicitud pendiente antes de que NovaRestore la expire automáticamente, devuelva la instantánea al estado `OPEN`, y actualice el embed de Discord. Define `0` para desactivar la expiración automática. Consulta la advertencia a continuación sobre el caso `0`. |
+| `requests.max-pending-per-player` | `3` | Número máximo de solicitudes de restauración pendientes (o en cola) simultáneamente por jugador. Una vez alcanzado este límite, las nuevas solicitudes para ese jugador se rechazan hasta que se resuelvan las existentes. Define `0` para eliminar el límite por jugador. |
+| `requests.staff-request-cooldown-seconds` | `0` | Segundos que un miembro del staff debe esperar entre el envío de solicitudes consecutivas. Define un valor positivo para evitar envíos dobles accidentales por uso rápido de comandos. Define `0` para desactivar por completo el tiempo de enfriamiento. |
+| `requests.quick-reasons` | `[bug, lag, pvp, error-admin, desync]` | Lista de cadenas de motivos preestablecidos mostradas en el menú desplegable de Discord cuando un miembro del staff necesita indicar un motivo. Puedes agregar, quitar o renombrar entradas libremente. Estas aparecen como opciones seleccionables — el miembro del staff también puede escribir un motivo personalizado. |
+
+<Warning>
+  **Configuración insegura: `timeout-minutes: 0` combinado con un
+  `max-pending-per-player` positivo.**
+
+  Si las solicitudes nunca expiran pero impones un límite por jugador, un jugador
+  puede quedar bloqueado permanentemente de nuevas solicitudes una vez que acumula
+  suficientes solicitudes sin resolver. NovaRestore detecta esta combinación y registra
+  una advertencia al iniciar, y luego aplica internamente un tiempo de espera efectivo
+  de 1440 minutos (24 horas) para evitar bloqueos permanentes — pero debes resolver
+  el conflicto de configuración explícitamente.
+
+  Alternativas seguras:
+  - Define `timeout-minutes` con un valor positivo (por ejemplo, `1440`), **o**
+  - Define `max-pending-per-player` en `0` si genuinamente quieres que no haya expiración.
+</Warning>
+
+## Ejemplo en YAML
+
+```yaml config.yml
+protections:
+  create-backup-before-restore: true
+  require-empty-sections-before-restore: false
+  save-combat-logout-snapshots: true
+  combat-logout-window-seconds: 15
+
+requests:
+  timeout-minutes: 1440
+  max-pending-per-player: 3
+  staff-request-cooldown-seconds: 0
+  quick-reasons:
+    - "bug"
+    - "lag"
+    - "pvp"
+    - "error-admin"
+    - "desync"
+    - "server-crash"
+```

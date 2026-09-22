@@ -14,51 +14,109 @@
     "href": "/"
   },
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Documentation",
-        "groups": [
+        "language": "en",
+        "tabs": [
           {
-            "group": "Getting Started",
-            "pages": [
-              "introduction",
-              "installation",
-              "quickstart"
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "introduction",
+                  "installation",
+                  "quickstart"
+                ]
+              },
+              {
+                "group": "Configuration",
+                "pages": [
+                  "configuration/overview",
+                  "configuration/database",
+                  "configuration/discord",
+                  "configuration/storage",
+                  "configuration/protections"
+                ]
+              },
+              {
+                "group": "Staff Guide",
+                "pages": [
+                  "staff/commands",
+                  "staff/permissions",
+                  "staff/snapshot-menu",
+                  "staff/discord-workflow"
+                ]
+              },
+              {
+                "group": "Player Guide",
+                "pages": [
+                  "players/how-it-works",
+                  "players/requesting-restore"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "reference/restore-types",
+                  "reference/snapshot-states",
+                  "reference/audit-log",
+                  "reference/faq"
+                ]
+              }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "tabs": [
           {
-            "group": "Configuration",
-            "pages": [
-              "configuration/overview",
-              "configuration/database",
-              "configuration/discord",
-              "configuration/storage",
-              "configuration/protections"
-            ]
-          },
-          {
-            "group": "Staff Guide",
-            "pages": [
-              "staff/commands",
-              "staff/permissions",
-              "staff/snapshot-menu",
-              "staff/discord-workflow"
-            ]
-          },
-          {
-            "group": "Player Guide",
-            "pages": [
-              "players/how-it-works",
-              "players/requesting-restore"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "reference/restore-types",
-              "reference/snapshot-states",
-              "reference/audit-log",
-              "reference/faq"
+            "tab": "Documentación",
+            "groups": [
+              {
+                "group": "Primeros pasos",
+                "pages": [
+                  "es/introduction",
+                  "es/installation",
+                  "es/quickstart"
+                ]
+              },
+              {
+                "group": "Configuración",
+                "pages": [
+                  "es/configuration/overview",
+                  "es/configuration/database",
+                  "es/configuration/discord",
+                  "es/configuration/storage",
+                  "es/configuration/protections"
+                ]
+              },
+              {
+                "group": "Guía de staff",
+                "pages": [
+                  "es/staff/commands",
+                  "es/staff/permissions",
+                  "es/staff/snapshot-menu",
+                  "es/staff/discord-workflow"
+                ]
+              },
+              {
+                "group": "Guía de jugadores",
+                "pages": [
+                  "es/players/how-it-works",
+                  "es/players/requesting-restore"
+                ]
+              },
+              {
+                "group": "Referencia",
+                "pages": [
+                  "es/reference/restore-types",
+                  "es/reference/snapshot-states",
+                  "es/reference/audit-log",
+                  "es/reference/faq"
+                ]
+              }
             ]
           }
         ]

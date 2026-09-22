@@ -1,0 +1,106 @@
+---
+title: "NovaRestore: Restauración de Inventario con Aprobación en Discord"
+sidebarTitle: "Inicio"
+description: "NovaRestore guarda automáticamente los inventarios de los jugadores al morir y permite que el staff los restaure mediante un flujo de aprobación en Discord — ningún ítem se pierde para siempre."
+---
+
+NovaRestore es un plugin de Paper para Minecraft que captura una instantánea completa del inventario de cada jugador en el momento en que muere, y luego enruta las solicitudes de restauración a través de un flujo de aprobación estructurado en Discord. El staff revisa cada solicitud, la aprueba o la deniega directamente en Discord, y los ítems del jugador se devuelven — todo sin revisar archivos de registro ni adivinar qué se perdió.
+
+## Primeros pasos
+
+<CardGroup cols={2}>
+  <Card
+    title="Introducción"
+    icon="book-open"
+    href="/es/introduction"
+  >
+    Aprende qué hace NovaRestore, cómo funciona el flujo de trabajo y qué versiones del servidor son compatibles.
+  </Card>
+  <Card
+    title="Instalación"
+    icon="download"
+    href="/es/installation"
+  >
+    Coloca el jar, inicia tu servidor y verifica que el plugin funciona en menos de dos minutos.
+  </Card>
+  <Card
+    title="Guía rápida"
+    icon="rocket"
+    href="/es/quickstart"
+  >
+    Configura Discord, asigna permisos y procesa tu primera solicitud de restauración en cinco minutos.
+  </Card>
+  <Card
+    title="Comandos de staff"
+    icon="terminal"
+    href="/es/staff/commands"
+  >
+    Referencia completa de todos los comandos disponibles para el staff y los operadores del servidor.
+  </Card>
+</CardGroup>
+
+## Funciones destacadas
+
+<CardGroup cols={2}>
+  <Card
+    title="Instantáneas automáticas al morir"
+    icon="camera"
+    href="/es/introduction"
+  >
+    Cada muerte de un jugador dispara una instantánea instantánea del inventario — armadura, hotbar, mano secundaria y todos los espacios de almacenamiento — guardada en SQLite o MySQL.
+  </Card>
+  <Card
+    title="Flujo de aprobación en Discord"
+    icon="discord"
+    href="/es/quickstart"
+  >
+    Las solicitudes de restauración aparecen como embeds enriquecidos en Discord. El staff aprueba o deniega con un solo clic, manteniendo un registro de auditoría completo.
+  </Card>
+  <Card
+    title="Explorador GUI para staff"
+    icon="grid-2"
+    href="/es/staff/commands"
+  >
+    Abre una GUI de cofre dentro del juego para explorar todo el historial de muertes de un jugador, inspeccionar cada instantánea y enviar una solicitud de restauración con un motivo.
+  </Card>
+  <Card
+    title="Soporte para SQLite y MySQL"
+    icon="database"
+    href="/es/configuration/overview"
+  >
+    Usa la base de datos SQLite incluida para configuraciones de un solo servidor, o conéctate a MySQL para entornos multiservidor o de alto tráfico.
+  </Card>
+  <Card
+    title="Migración de datos heredados"
+    icon="arrows-rotate"
+    href="/es/installation"
+  >
+    ¿Actualizas desde una instalación antigua de InvRollback? NovaRestore migra automáticamente tus datos de instantáneas existentes al primer inicio.
+  </Card>
+  <Card
+    title="Manejo seguro de credenciales"
+    icon="lock"
+    href="/es/quickstart"
+  >
+    El token del bot de Discord se pasa como argumento de la JVM en lugar de guardarse en un archivo de configuración, manteniendo las credenciales sensibles fuera del control de versiones.
+  </Card>
+</CardGroup>
+
+## Puesta en marcha en cuatro pasos
+
+Pon NovaRestore en funcionamiento en tu servidor ahora mismo siguiendo estos cuatro pasos. Cada uno enlaza a la guía detallada correspondiente.
+
+<Steps>
+  <Step title="Instala el jar">
+    Descarga el jar de NovaRestore y colócalo en la carpeta `plugins/` de tu servidor. No se requieren dependencias adicionales. Consulta [Instalación](/es/installation) para ver la lista completa de verificación.
+  </Step>
+  <Step title="Configura Discord">
+    Pasa el token de tu bot como el argumento de JVM `-Ddiscord.token=YOUR_BOT_TOKEN` y define `discord.log-channel-id` en `plugins/NovaRestore/config.yml`. Consulta la [Guía rápida](/es/quickstart) para ver la sintaxis exacta.
+  </Step>
+  <Step title="Asigna permisos">
+    Otorga al staff el permiso `rollback.view` y a los jugadores el permiso `rollback.request` usando el plugin de permisos de tu elección.
+  </Step>
+  <Step title="Prueba el flujo de trabajo">
+    Mata a un jugador en modo creativo, ejecuta `/invrollback <playerName>` para abrir la GUI de instantáneas, envía una solicitud de restauración y confirma que el embed aparece en tu canal de registro de Discord.
+  </Step>
+</Steps>

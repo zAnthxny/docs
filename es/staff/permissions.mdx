@@ -1,0 +1,115 @@
+---
+title: "Nodos de Permisos de NovaRestore para Staff y Jugadores"
+sidebarTitle: "Permisos"
+description: "Los diez nodos de permisos de NovaRestore con descripciones, asignaciones de roles recomendadas para cada nivel de staff, y fragmentos de configuración de LuckPerms para copiar y pegar."
+---
+
+NovaRestore se distribuye con diez nodos de permisos granulares para que puedas adaptar exactamente qué funciones puede acceder cada nivel de staff y tu base de jugadores. Ningún permiso se otorga de forma predeterminada — debes asignarlos explícitamente a través de tu plugin de permisos. El nodo comodín `rollback.admin.all` está disponible cuando quieres otorgar acceso irrestricto a un rol de confianza.
+
+<Note>
+  Los permisos se evalúan usando el sistema de permisos estándar de Bukkit. Cualquier plugin de permisos que se integre con Bukkit (LuckPerms, PermissionsEx, PowerRanks, etc.) es totalmente compatible.
+</Note>
+
+---
+
+## Todos los nodos de permiso
+
+| Nodo | Quién debería tenerlo | Descripción |
+|---|---|---|
+| `rollback.view` | Staff (todos los niveles) | Abre la GUI del explorador de instantáneas para cualquier jugador. Requerido para usar `/invrollback <player>`. |
+| `rollback.request` | Jugadores, Staff | Envía una solicitud de restauración de inventario desde el menú de inspección. Sin este nodo, el botón de solicitud está inactivo. |
+| `rollback.info` | Staff (todos los niveles) | Ver estadísticas de instantáneas (`info`/`stats`) e historial reciente (`history`) de cualquier jugador. |
+| `rollback.logs` | Staff Senior, Moderador+ | Ver las últimas 12 entradas del registro de auditoría de un jugador vía `/invrollback logs`. |
+| `rollback.manage.cancel` | Moderador+ | Cancelar una solicitud de restauración pendiente por ID de muerte con un motivo obligatorio. |
+| `rollback.manage.reopen` | Moderador+ | Reabrir una solicitud denegada, devolviéndola al estado OPEN. |
+| `rollback.manage.unlock` | Moderador+ | Desbloquear una entrada de muerte RESTORED para permitir que se procese de nuevo. |
+| `rollback.export` | Admin+ | Exportar datos del registro de auditoría a archivos YAML o JSON. |
+| `rollback.reload` | Admin+ | Recargar `config.yml` y reiniciar la conexión del bot de Discord. |
+| `rollback.admin.all` | Owner, Admin | Comodín que otorga **todos** los nodos anteriores simultáneamente. |
+
+---
+
+## Configuraciones de rol recomendadas
+
+La tabla a continuación mapea los cuatro roles de servidor más comunes a los permisos que típicamente necesitan. Ajústalos según tu propia jerarquía.
+
+| Rol | Permisos recomendados |
+|---|---|
+| **Owner / Admin** | `rollback.admin.all` |
+| **Moderador** | `rollback.view`, `rollback.info`, `rollback.logs`, `rollback.manage.cancel`, `rollback.manage.reopen`, `rollback.manage.unlock` |
+| **Helper** | `rollback.view`, `rollback.info` |
+| **Jugador** | `rollback.request` |
+
+---
+
+## Ejemplo de configuración con LuckPerms
+
+Los fragmentos a continuación muestran cómo aplicar estos roles usando comandos de LuckPerms o el formato `config.yml`. Adapta los nombres de grupo a tu servidor.
+
+<Tabs>
+  <Tab title="Comandos de LuckPerms">
+    ```bash title="Grupo Owner / Admin"
+    /lp group admin permission set rollback.admin.all true
+    ```
+
+    ```bash title="Grupo Moderador"
+    /lp group moderator permission set rollback.view true
+    /lp group moderator permission set rollback.info true
+    /lp group moderator permission set rollback.logs true
+    /lp group moderator permission set rollback.manage.cancel true
+    /lp group moderator permission set rollback.manage.reopen true
+    /lp group moderator permission set rollback.manage.unlock true
+    ```
+
+    ```bash title="Grupo Helper"
+    /lp group helper permission set rollback.view true
+    /lp group helper permission set rollback.info true
+    ```
+
+    ```bash title="Grupo Jugador / predeterminado"
+    /lp group default permission set rollback.request true
+    ```
+  </Tab>
+  <Tab title="YAML (estilo groups.yml)">
+    ```yaml title="Fragmento de groups.yml de LuckPerms"
+    groups:
+      admin:
+        permissions:
+          - rollback.admin.all
+
+      moderator:
+        permissions:
+          - rollback.view
+          - rollback.info
+          - rollback.logs
+          - rollback.manage.cancel
+          - rollback.manage.reopen
+          - rollback.manage.unlock
+
+      helper:
+        permissions:
+          - rollback.view
+          - rollback.info
+
+      default:
+        permissions:
+          - rollback.request
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Notas sobre herencia de permisos
+
+<AccordionGroup>
+  <Accordion title="¿rollback.admin.all también cubre rollback.request?">
+    Sí. `rollback.admin.all` está declarado como padre en `plugin.yml` e incluye explícitamente `rollback.request`. Los administradores pueden enviar solicitudes desde el menú de inspección igual que los jugadores normales.
+  </Accordion>
+  <Accordion title="¿Qué pasa si un jugador no tiene ningún permiso?">
+    Ejecutar `/invrollback` sin ningún permiso coincidente muestra un mensaje de "sin permiso" y no se revela nada sobre los subcomandos disponibles. Ningún nodo de permiso está en `true` por defecto, así que tus jugadores empiezan con una hoja en blanco.
+  </Accordion>
+  <Accordion title="¿Puedo otorgar solo el comodín y omitir los nodos individuales?">
+    Sí. Asignar `rollback.admin.all` a un grupo es totalmente equivalente a asignar los nueve nodos individuales. No necesitas listarlos por separado a menos que quieras mezclar y combinar — por ejemplo, otorgar `rollback.admin.all` pero luego negar explícitamente `rollback.reload` para un administrador semi-confiable.
+  </Accordion>
+</AccordionGroup>
