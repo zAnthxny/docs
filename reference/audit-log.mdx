@@ -1,5 +1,5 @@
 ---
-title: "NovaRestore Audit Log: Tracking Every Action"
+title: "NovaRestore Audit Log: Actions, Fields, and Exports"
 sidebarTitle: "Audit Log"
 description: "Learn how NovaRestore's audit log records every restore action, how to view per-player logs in-game, and how to export the full log as YAML or JSON."
 ---
@@ -35,8 +35,12 @@ Every entry in the audit log contains the following fields:
 | `timestamp` | Unix epoch milliseconds when the action occurred |
 | `action` | The action type string (e.g. `REQUEST`, `DENY`, `RESTORE_FULL`) |
 | `actor` | The username of the staff member who performed the action, or `SYSTEM` for automated events like timeouts |
+| `player_name` | The in-game username of the player whose snapshot this entry belongs to |
+| `player_uuid` | The UUID of the player whose snapshot this entry belongs to |
 | `death_id` | The unique ID of the death snapshot this entry relates to |
+| `snapshot_date` | The formatted date and time when the death snapshot was originally recorded |
 | `state` | The snapshot state at the time the entry was written |
+| `location` | The world and coordinates where the death occurred |
 | `server_name` | The server name as configured in `server.name` |
 | `note` | A human-readable description or reason for the action |
 

@@ -1,7 +1,7 @@
 ---
-title: "NovaRestore FAQ and Troubleshooting Guide"
+title: "NovaRestore FAQ: Common Questions and Troubleshooting"
 sidebarTitle: "FAQ"
-description: "Answers to common NovaRestore questions: Discord bot issues, missing snapshots, duplicate restore prevention, player notifications, and configuration warnings."
+description: "Answers to common NovaRestore questions covering Discord bot setup, missing snapshots, duplicate restore prevention, notifications, and config warnings."
 ---
 
 This page answers the most common questions server administrators and staff run into when running NovaRestore. If you are dealing with an unexpected behavior, a missing snapshot, or a configuration issue, start here.
@@ -23,7 +23,7 @@ This page answers the most common questions server administrators and staff run 
   <Accordion title="A player's death snapshot is missing — why?">
     There are a few reasons a snapshot may not exist:
 
-    - **Retention policy removed it** — Snapshots older than `storage.retention.max-audit-age-days` (default: 45 days for snapshots via `storage.retention.max-snapshot-age-days`) are purged automatically. If the player's death was more than that many days ago, the data is gone.
+    - **Retention policy removed it** — Snapshots older than `storage.retention.max-snapshot-age-days` (default: 45 days) are purged automatically. If the player's death was more than that many days ago, the data is gone.
     - **The death happened in a blocked world or game mode** — If `storage.filters.enabled` is `true` and the world or game mode is listed under `blocked-worlds` or `blocked-gamemodes`, no snapshot is saved for deaths in those environments.
     - **The death snapshot was empty** — If `storage.skip-empty-death-snapshots` is `true` (the default), deaths where the player had no items, no XP, and nothing in their ender chest are not recorded. Nothing was lost, so nothing was saved.
     - **The player exceeded the per-player snapshot limit** — `storage.retention.max-snapshots-per-player` (default: 100) caps how many deaths are kept per player. The oldest are removed first when the limit is hit.

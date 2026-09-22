@@ -1,5 +1,5 @@
 ---
-title: "Get Started with NovaRestore in 5 Minutes"
+title: "Quickstart: Configure NovaRestore and Run Your First Restore"
 sidebarTitle: "Quickstart"
 description: "Configure NovaRestore's Discord integration, assign staff permissions, and process your first inventory restore request in under 5 minutes."
 ---
@@ -68,7 +68,7 @@ Once NovaRestore is installed and your server has booted at least once, you have
       log-channel-id: "123456789012345678"
     ```
 
-    Save the file. This change takes effect on the next server restart (or plugin reload with `/novaRestore reload` if your build supports it).
+    Save the file. This change takes effect on the next server restart (or after running `/invrollback reload` to apply changes without a full restart).
 
     <Warning>
       The channel ID must be wrapped in quotes in YAML. Unquoted numeric strings longer than 15 digits may be parsed as a floating-point number and truncated, which will cause Discord API calls to fail silently.
@@ -136,7 +136,7 @@ Once NovaRestore is installed and your server has booted at least once, you have
 
 ## Minimal Configuration Reference
 
-The following block shows the minimum `config.yml` values you need to set before NovaRestore's Discord integration is operational. All other options are optional and documented on the [Configuration](/configuration) page.
+The following block shows the minimum `config.yml` values you need to set before NovaRestore's Discord integration is operational. All other options are optional and documented on the [Configuration](/configuration/overview) page.
 
 ```yaml config.yml
 server:
@@ -147,7 +147,7 @@ discord:
 ```
 
 <Note>
-  This minimal config relies on all other settings being at their defaults: SQLite database, English messages, and standard GUI layout. See the full [Configuration Reference](/configuration) for every available option including MySQL setup, message customisation, and snapshot retention policies.
+  This minimal config relies on all other settings being at their defaults: SQLite database, English messages, and standard GUI layout. See the full [Configuration Reference](/configuration/overview) for every available option including MySQL setup, message customisation, and snapshot retention policies.
 </Note>
 
 ## Next Steps
@@ -163,7 +163,7 @@ discord:
   <Card
     title="Configuration Reference"
     icon="sliders"
-    href="/configuration"
+    href="/configuration/overview"
   >
     Every option in `config.yml` explained, including MySQL, message overrides, and retention settings.
   </Card>

@@ -1,7 +1,7 @@
 ---
-title: "NovaRestore Configuration Reference Overview"
+title: "NovaRestore Configuration: Complete Reference Guide"
 sidebarTitle: "Overview"
-description: "A guided tour of all NovaRestore configuration sections: database, Discord, storage retention, request handling, and player protections."
+description: "A guided tour of every NovaRestore configuration section: database, Discord, storage retention, request handling, and player protections."
 ---
 
 NovaRestore stores every configuration option in a single file that is generated automatically the first time the plugin loads. Understanding the layout of that file — and knowing which section controls which behaviour — makes day-to-day administration much easier. This page walks you through where the file lives, how to apply changes at runtime, and what each top-level section is responsible for.
@@ -61,13 +61,10 @@ The five sections below cover the entire feature surface of `config.yml`. Each o
     Control per-player snapshot limits, age-based retention for snapshots and
     audit entries, empty-snapshot filtering, and world or game-mode exclusions.
   </Card>
-  <Card title="Requests" icon="paper-plane" href="/configuration/protections">
-    Set request timeouts, per-player pending caps, staff cooldowns, and the
-    pre-filled quick-reason dropdown shown in Discord.
-  </Card>
-  <Card title="Protections" icon="shield-halved" href="/configuration/protections">
+  <Card title="Protections & Requests" icon="shield-halved" href="/configuration/protections">
     Enable pre-restore inventory backups, require empty slots before a restore
-    applies, and capture combat-logout snapshots to guard against disconnect abuse.
+    applies, capture combat-logout snapshots, set request timeouts, configure
+    per-player pending caps, staff cooldowns, and the quick-reason dropdown.
   </Card>
 </CardGroup>
 

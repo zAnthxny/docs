@@ -1,7 +1,7 @@
 ---
-title: "NovaRestore Staff Commands Reference"
+title: "NovaRestore Staff Commands — Full Reference Guide"
 sidebarTitle: "Commands"
-description: "Complete reference for all NovaRestore staff commands: snapshot browser, request management, audit log export, and plugin reload. Includes syntax and examples."
+description: "Full reference for every NovaRestore staff command: snapshot browser, request management, audit log export, and plugin reload with syntax and examples."
 ---
 
 NovaRestore exposes a single command entry point — `/invrollback` (alias `/invrestore`) — with subcommands covering everything from opening the snapshot browser GUI to managing pending requests, exporting audit logs, and reloading the plugin. Every subcommand checks a dedicated permission node before executing, so you can safely grant only what each role needs.
@@ -66,7 +66,7 @@ Opens the 54-slot snapshot browser GUI for the target player. All arguments afte
 
 **Permission:** `rollback.manage.cancel`
 
-Cancels a pending (PENDING state) restore request. `<deathId>` is the unique snapshot identifier shown in the GUI lore or audit logs. `<reason>` is required and supports spaces — it is stored in the audit log and sent as a notification to the affected player if they are online.
+Cancels a restore request that is in PENDING or QUEUED state. `<deathId>` is the unique snapshot identifier shown in the GUI lore or audit logs. `<reason>` is required and supports spaces — it is stored in the audit log and sent as a notification to the affected player if they are online.
 
 ```bash title="Examples"
 /invrollback cancel a3f2b1 Player reconnected with items intact
@@ -74,7 +74,7 @@ Cancels a pending (PENDING state) restore request. `<deathId>` is the unique sna
 ```
 
 <Note>
-  Tab completion for `cancel` only suggests death IDs that are currently in PENDING state, which prevents accidentally targeting snapshots that have already been resolved.
+  Tab completion for `cancel` only suggests death IDs that are currently in PENDING or QUEUED state, which prevents accidentally targeting snapshots that have already been resolved.
 </Note>
 
 ### Reopen a Denied Request

@@ -1,5 +1,5 @@
 ---
-title: "NovaRestore: Inventory Rollback Plugin Overview"
+title: "NovaRestore: Inventory Rollback Plugin Overview & Features"
 sidebarTitle: "Introduction"
 description: "Learn what NovaRestore does, how the death snapshot and Discord approval workflow functions, and which Minecraft server versions are supported."
 ---
@@ -37,7 +37,7 @@ When a player dies, NovaRestore immediately records the full state of their inve
   <Card
     title="Dual Database Support"
     icon="database"
-    href="/configuration"
+    href="/configuration/overview"
   >
     Choose between the bundled SQLite database (zero setup, great for most servers) or an external MySQL database for larger networks.
   </Card>
@@ -103,7 +103,7 @@ NovaRestore ships with two supported database backends.
 
 **SQLite (default)** — A file-based database stored at `plugins/NovaRestore/data.db`. No installation or credentials are required. SQLite is the recommended choice for single-server deployments and handles thousands of snapshots without performance concerns.
 
-**MySQL** — An external relational database for operators who run multiple servers from a shared database, need higher concurrent write throughput, or prefer centralised backups. See the [Configuration](/configuration) page for the full MySQL setup reference.
+**MySQL** — An external relational database for operators who run multiple servers from a shared database, need higher concurrent write throughput, or prefer centralised backups. See the [Configuration](/configuration/overview) page for the full MySQL setup reference.
 
 <Note>
   Switching from SQLite to MySQL after the plugin has been running is possible but requires a manual data migration. Plan your database choice before you go live.

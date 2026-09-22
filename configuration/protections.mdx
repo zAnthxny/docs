@@ -51,7 +51,7 @@ The `requests` section controls the lifecycle of pending restore requests — fr
 |-----|---------|-------------|
 | `requests.timeout-minutes` | `1440` | How many minutes a pending request stays open before NovaRestore automatically expires it, returns the snapshot to `OPEN` state, and updates the Discord embed. Set to `0` to disable automatic expiry. See the warning below about the `0` case. |
 | `requests.max-pending-per-player` | `3` | Maximum number of simultaneously pending (or queued) restore requests per player. Once this cap is reached, new requests for that player are rejected until existing ones are resolved. Set to `0` to remove the per-player cap. |
-| `requests.staff-request-cooldown-seconds` | `10` | Seconds a staff member must wait between submitting consecutive requests. This prevents accidental double-submissions from rapid command usage. |
+| `requests.staff-request-cooldown-seconds` | `0` | Seconds a staff member must wait between submitting consecutive requests. Set to a positive value to prevent accidental double-submissions from rapid command usage. Set to `0` to disable the cooldown entirely. |
 | `requests.quick-reasons` | `[bug, lag, pvp, error-admin, desync]` | List of preset reason strings displayed in the Discord dropdown when a staff member needs to provide a reason. You can add, remove, or rename entries freely. These appear as selectable options — the staff member can also type a custom reason. |
 
 <Warning>
@@ -82,7 +82,7 @@ protections:
 requests:
   timeout-minutes: 1440
   max-pending-per-player: 3
-  staff-request-cooldown-seconds: 10
+  staff-request-cooldown-seconds: 0
   quick-reasons:
     - "bug"
     - "lag"

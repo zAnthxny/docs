@@ -1,7 +1,7 @@
 ---
-title: "Processing Inventory Restore Requests in Discord"
+title: "NovaRestore: Approving Restore Requests in Discord"
 sidebarTitle: "Discord Workflow"
-description: "How to review and approve or deny NovaRestore inventory restore requests from Discord: reading the embed, selecting a restore type, and handling queued offline restores."
+description: "Action NovaRestore restore requests in Discord: read the request embed, choose a restore type or deny, and understand how queued offline delivery works."
 ---
 
 When a staff member submits a restore request from the in-game inspection menu, NovaRestore immediately posts a rich embed to your configured Discord channel. From that point, authorised Discord staff select a restore type (or deny the request) using an interactive dropdown. The plugin then applies the items automatically — either instantly if the player is online, or on their next login if they are offline.
@@ -122,9 +122,9 @@ The embed in Discord will update to reflect the reopened status and the dropdown
 
 ## Cancelling a Request from In-Game
 
-If a pending request is no longer needed — for example, the player reconnected with their items intact — a staff member with `rollback.manage.cancel` can cancel it without using Discord:
+If a PENDING or QUEUED request is no longer needed — for example, the player reconnected with their items intact — a staff member with `rollback.manage.cancel` can cancel it without using Discord:
 
-```bash title="Cancel a pending request"
+```bash title="Cancel a pending or queued request"
 /invrollback cancel <deathId> <reason>
 ```
 
@@ -149,16 +149,19 @@ To disable auto-expiry entirely, set `requests.timeout-minutes: 0` in `config.ym
 The diagram below shows every state a snapshot can move through and which action triggers each transition.
 
 ```
-OPEN ──── request submitted ──────────────► PENDING
-  ▲                                           │
-  │                                     Discord action
-  │                                     ┌────┴────┐
-  │              player online           ▼         ▼
-  │           ◄── approved ──────── RESTORED    QUEUED ── player logs in ──► RESTORED
-  │                                               │
-  │                                           denied
-  │                                               ▼
-  └──────── /invrollback reopen ──────────── DENIED
+                      request submitted
+OPEN ─────────────────────────────────────────► PENDING
+ ▲                                                 │
+ │                                          Discord action
+ │                                       ┌─────────┼──────────┐
+ │                                       │ deny    │ approve  │ approve
+ │                                       ▼         │ (online) │ (offline)
+ │                                    DENIED       ▼          ▼
+ │                                       │      RESTORED    QUEUED ── player logs in ──► RESTORED
+ │                                       │
+ ├──────── /invrollback cancel ──────────┤ (from PENDING or QUEUED)
+ │
+ └──────── /invrollback reopen ──────────┘ (from DENIED)
 ```
 
 | State | Colour in Discord | Meaning |
